@@ -1,6 +1,6 @@
 ---
 ctime: 2026-10-31
-mtime: 2026-11-02
+mtime: 2026-11-03
 spdx: GPL-3.0-only
 title: herdr
 description: >-
@@ -20,16 +20,15 @@ tags:
 
 # herdr
 
-The `herdr` skill covers herdr itself; this is how the agents here use
-it.
+The `herdr` skill covers herdr itself, as does `herdr --skill` where it
+is not installed; this is how stewardship uses it.
 
 ## Agents and panes
 
-Each agent runs in a pane under a name, listed in
-[the skill](../SKILL.md): the coordinating agent
-`dorothydev-claude-cgumxx`, its reserve `dorothydev-claude-vtracey` and
-Codex, `dorothydev-codex`. Inside a pane, `$HERDR_PANE_ID` names your
-own.
+Each agent runs in a pane under a name, given in
+[the roster](../SKILL.md#the-roster). Inside a pane, `$HERDR_PANE_ID`
+names your own; `herdr agent list` shows the rest, though only those on
+the roster are yours to use.
 
 - `herdr agent get <name>`: its `pane_id` and `agent_status`, such as
   `idle` or `blocked` (waiting on a dialog). The name or the pane's id
@@ -46,8 +45,8 @@ Codex submits it; Claude Code swallows an Enter that arrives with the
 paste, leaving the text unsent. So messages go as text, then Enter,
 apart, which `send-prompt.sh` does, pausing a second between (Codex
 reads an Enter sent at once as part of the paste and does not submit;
-`DOROTHY_SEND_PAUSE` sets the seconds). Neither form sends a slash command:
-that is typed, as `compact-self.sh` types `/compact`.
+`AGENT_STEWARDSHIP_SEND_PAUSE` sets the seconds). Neither form sends a
+slash command: that is typed, as `compact-self.sh` types `/compact`.
 
 ## Sending a message
 
@@ -60,9 +59,8 @@ The message comes on stdin. It opens `[from <name>]`, the name being
 without `--from`, the script prints its usage and touches nothing.
 
 ```sh
-S=.agents/skills/agent-stewardship/scripts
 printf '%s\n' "Brief ready: ~/briefs/task-3.md" |
-    "$S/send-prompt.sh" dorothydev-codex
+    "$S/send-prompt.sh" <codex>
 ```
 
 A send now resolves the agent to its pane, takes the pane's lock, then
@@ -78,7 +76,7 @@ them, their retries and their record.
 ## The pane lock
 
 One writer at a time per pane:
-`$XDG_RUNTIME_DIR/dorothy-agents/<pane>.lock`, held by `send-prompt.sh`
+`$XDG_RUNTIME_DIR/agent-stewardship/<pane>.lock`, held by `send-prompt.sh`
 and `compact-self.sh` across every write of a sequence, so a wake-up
 never lands inside a half-typed `/compact`. A sender waits behind
 another. A bare `herdr pane send-text` takes no lock: use it only on an

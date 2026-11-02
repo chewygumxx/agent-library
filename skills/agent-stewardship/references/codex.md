@@ -1,6 +1,6 @@
 ---
 ctime: 2026-10-31
-mtime: 2026-11-02
+mtime: 2026-11-03
 spdx: GPL-3.0-only
 title: Codex
 description: >-
@@ -19,7 +19,8 @@ tags:
 
 # Codex
 
-Codex runs in herdr as `dorothydev-codex`.
+Codex runs in a herdr pane, under the name the roster gives it, written
+`<codex>` here.
 
 ## Dispatching
 
@@ -32,11 +33,10 @@ Give Codex a task in files, not in the message:
 
    ```sh
    printf '%s\n' "Read <brief> and follow it." |
-       .agents/skills/agent-stewardship/scripts/send-prompt.sh \
-       dorothydev-codex
+       "$S/send-prompt.sh" <codex>
    ```
 
-   `herdr agent prompt dorothydev-codex "<line>"` also works for Codex,
+   `herdr agent prompt <codex> "<line>"` also works for Codex,
    which, unlike Claude Code, takes the Enter that arrives in the same
    paste; it carries no label. `send-prompt.sh` sends the Enter apart
    after a pause, as Codex reads an Enter sent at once after typed text
@@ -45,7 +45,7 @@ Give Codex a task in files, not in the message:
 3. Wait in the background shell, then read the report:
 
    ```sh
-   herdr agent wait dorothydev-codex --until idle
+   herdr agent wait <codex> --until idle
    ```
 
    A Codex waiting on a question never reaches idle: if the wait runs
@@ -53,11 +53,10 @@ Give Codex a task in files, not in the message:
 
 ## Its footer
 
-`herdr agent read dorothydev-codex` shows its pane, ending in a footer such
-as:
+`herdr agent read <codex>` shows its pane, ending in a footer such as:
 
 ```text
-GPT-6-Astra xhigh · ~/dev/dorothy · <task> · Context 11% used ·
+GPT-6-Astra xhigh · ~/dev/project · <task> · Context 11% used ·
 5h 99% left · weekly 24% left
 ```
 
@@ -69,20 +68,21 @@ dispatching, as Claude's file is read ([budgets](./budgets.md)).
 ## Questions and approvals
 
 - A question dialog: `shift+left`, then the option's number, then
-  `enter`, each by `herdr agent send-keys dorothydev-codex <key>`;
-  `ctrl+]` skips the question.
-- Approvals: `~/.codex/config.toml` sets `approval_policy = "never"` and
-  `sandbox_mode = "danger-full-access"`, so Codex should never ask. A
-  session started before that config still asks: approve each prompt
-  with `herdr agent send-keys dorothydev-codex y`, and restart it when it
-  is free.
+  `enter`, each by `herdr agent send-keys <codex> <key>`; `ctrl+]` skips
+  the question.
+- Approvals: Codex asks unless the user's `~/.codex/config.toml` says
+  otherwise. Under `Codex approvals: approve them yourself`, approve
+  each with `herdr agent send-keys <codex> y`; without that line, relay
+  each to the user. Whether Codex asks at all is the user's to set, with
+  `approval_policy` and `sandbox_mode`; leave that file alone. A session
+  started before a change to it keeps asking until it is restarted.
 
 ## Effort and its cost
 
 The footer shows the effort. `xhigh` spends the budget far faster than
 `high`: estimate at the effort the task will run at. Under limit
-pressure Codex may switch models; the evaluation treats that as a stop
-and exits 75, so a run on Codex resumes as any limited run does.
+pressure Codex may switch models, which a job sensitive to its model
+should treat as a stop.
 
 ## Starting anew
 
@@ -90,6 +90,6 @@ Between tasks, or when `Context N% used` runs high, start Codex anew
 with `/new`. A slash command is typed, not sent as a message: as
 `compact-self.sh` types `/compact`, write it with
 `herdr pane send-text <pane> /new`, its pane from
-`herdr agent get dorothydev-codex`, then send `enter` apart, at idle. It
+`herdr agent get <codex>`, then send `enter` apart, at idle. It
 resets Codex's context, then asks about a worktree, and `enter` keeps
 the current one. The next brief must carry all Codex needs.
