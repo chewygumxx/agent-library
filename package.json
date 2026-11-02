@@ -89,7 +89,11 @@
             "@chewygumxx/cspell-config"
         ],
         "words": [
-            "obra"
+            "Markor",
+            "obra",
+            "wikilink",
+            "wikilinks",
+            "Zettelkasten"
         ]
     },
     "skills": [
