@@ -24,7 +24,7 @@ die() {
 
 # Prints the directory of state kept between runs, making it private.
 state_dir() {
-    dir=${XDG_STATE_HOME:-$HOME/.local/state}/dorothy-agents
+    dir=${XDG_STATE_HOME:-$HOME/.local/state}/agent-stewardship
     mkdir -p "$dir" || die 1 "cannot make $dir"
     chmod 700 "$dir"
     printf '%s\n' "$dir"
@@ -33,7 +33,7 @@ state_dir() {
 # Holds the pane's lock on fd 9 until the script exits.
 lock_pane() {
     [ -n "${XDG_RUNTIME_DIR:-}" ] || die 1 'XDG_RUNTIME_DIR is not set'
-    dir=$XDG_RUNTIME_DIR/dorothy-agents
+    dir=$XDG_RUNTIME_DIR/agent-stewardship
     mkdir -p "$dir" || die 1 "cannot make $dir"
     chmod 700 "$dir"
     name=$(printf '%s' "$1" | tr -c '[:alnum:]' _)

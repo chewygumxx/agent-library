@@ -9,11 +9,11 @@
 #
 #
 
-# Runs a command, and while it exits 75, the code `eval run` and
-# `dorothy --review-backfill -n all` return when a plan's usage limit
-# stops them, waits and runs it again, up to N more times. A retry is the
-# command again, or `sh -c CMD` if --retry gave one, say a resume of the
-# run that stopped. Exits with the last run's code.
+# Runs a command, and while it exits 75 (EX_TEMPFAIL), the code a command
+# is to return when a plan's usage limit stops it, waits and runs it
+# again, up to N more times. A retry is the command again, or `sh -c CMD`
+# if --retry gave one, say a resume of the run that stopped. Exits with
+# the last run's code.
 #
 #   at-limit.sh [--wait S] [--tries N] [--retry CMD] -- <command> [args]
 #

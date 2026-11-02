@@ -23,7 +23,6 @@ import {
     realpath,
     rm,
     stat,
-    symlink,
     writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -78,7 +77,7 @@ let root: string;
 let env: Record<string, string>;
 
 beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), "dorothy-stewardship-"));
+    root = await mkdtemp(join(tmpdir(), "agent-stewardship-"));
     await mkdir(join(root, "bin"));
     await mkdir(join(root, "run"));
     for (const [name, body] of [
@@ -99,7 +98,7 @@ beforeEach(async () => {
         STUB: root,
         TZ: "UTC",
         // The pause before Enter, not waited out but for its own test.
-        DOROTHY_SEND_PAUSE: "0",
+        AGENT_STEWARDSHIP_SEND_PAUSE: "0",
     };
 });
 
@@ -107,8 +106,8 @@ afterEach(async () => {
     await rm(root, { recursive: true, force: true });
 });
 
-const sendsDir = () => join(root, "state", "dorothy-agents", "sends");
-const lockFile = () => join(root, "run", "dorothy-agents", "w1_p2.lock");
+const sendsDir = () => join(root, "state", "agent-stewardship", "sends");
+const lockFile = () => join(root, "run", "agent-stewardship", "w1_p2.lock");
 const setStatus = (status: string) => writeFile(join(root, "status"), status);
 const touch = (name: string) => writeFile(join(root, name), "");
 
@@ -174,12 +173,12 @@ describe("send-prompt.sh, now", () => {
         ]);
     });
 
-    it("pauses DOROTHY_SEND_PAUSE seconds between the text and Enter", async () => {
+    it("pauses AGENT_STEWARDSHIP_SEND_PAUSE seconds between the text and Enter", async () => {
         const stub = join(root, "bin", "sleep");
         await writeFile(stub, `#!/bin/sh\n${logging}\n`);
         await chmod(stub, 0o755);
         const { code } = await run(send, ["--from", "alice", "bob"], "hi", {
-            DOROTHY_SEND_PAUSE: "7",
+            AGENT_STEWARDSHIP_SEND_PAUSE: "7",
         });
         expect(code).toBe(0);
         expect(
@@ -246,7 +245,7 @@ describe("send-prompt.sh, now", () => {
     });
 
     it("reads the status after taking the pane's lock", async () => {
-        await mkdir(join(root, "run", "dorothy-agents"));
+        await mkdir(join(root, "run", "agent-stewardship"));
         const holder = Bun.spawn(
             ["flock", lockFile(), "sh", "-c", "read -r _"],
             { stdin: "pipe", stdout: "ignore", stderr: "ignore" },
@@ -311,8 +310,8 @@ describe("send-prompt.sh, scheduled", () => {
         const [call] = await calls();
         expect(call?.[0]).toBe("systemd-run");
         const unit = call?.find((arg) => arg.startsWith("--unit=")) ?? "";
-        expect(unit).toMatch(/^--unit=dorothy-send-bob-\d+$/);
-        const id = unit.slice("--unit=dorothy-send-".length);
+        expect(unit).toMatch(/^--unit=agent-stewardship-send-bob-\d+$/);
+        const id = unit.slice("--unit=agent-stewardship-send-".length);
         expect(call).toEqual(
             expect.arrayContaining([
                 "--user",
@@ -326,7 +325,7 @@ describe("send-prompt.sh, scheduled", () => {
         );
         expect(call?.slice(-4)).toEqual(["--", send, "--deliver", id]);
         expect(call?.join(" ")).not.toContain("secret");
-        expect(out).toContain(`dorothy-send-${id}`);
+        expect(out).toContain(`agent-stewardship-send-${id}`);
         expect(out).toContain("2099-01-01 00:00:00 UTC");
 
         const file = join(sendsDir(), `${id}.msg`);
@@ -409,12 +408,12 @@ describe("send-prompt.sh --deliver", () => {
         expect(await readdir(sendsDir())).not.toContain(`${id}.msg`);
     });
 
-    it("pauses DOROTHY_SEND_PAUSE seconds between text and Enter", async () => {
+    it("pauses AGENT_STEWARDSHIP_SEND_PAUSE seconds between text and Enter", async () => {
         const stub = join(root, "bin", "sleep");
         await writeFile(stub, `#!/bin/sh\n${logging}\n`);
         await chmod(stub, 0o755);
         const { code } = await run(send, ["--deliver", id], "", {
-            DOROTHY_SEND_PAUSE: "7",
+            AGENT_STEWARDSHIP_SEND_PAUSE: "7",
         });
         expect(code).toBe(0);
         expect(
@@ -521,7 +520,7 @@ describe("send-prompt.sh outside herdr", () => {
 
 describe("compact-self.sh", () => {
     const pane = "w7:p3";
-    const quick = { HERDR_PANE_ID: pane, DOROTHY_COMPACT_PAUSE: "0" };
+    const quick = { HERDR_PANE_ID: pane, AGENT_STEWARDSHIP_COMPACT_PAUSE: "0" };
 
     beforeEach(() => writeFile(join(root, `pane.${pane}`), pane));
 
@@ -647,7 +646,7 @@ describe("compact-self.sh", () => {
         const file = await instructions("go on");
         const compacting = start(compact, [file], "", {
             HERDR_PANE_ID: "w1:p2",
-            DOROTHY_COMPACT_PAUSE: "1",
+            AGENT_STEWARDSHIP_COMPACT_PAUSE: "1",
         });
         await until(async () => (await writes()).length > 0);
         const sending = start(send, ["--from", "a", "bob"], "ping");
@@ -698,12 +697,12 @@ describe("job.sh", () => {
         expect(code).toBe(0);
         const call = await submitted();
         const unit = call.find((arg) => arg.startsWith("--unit=")) ?? "";
-        expect(unit).toMatch(/^--unit=dorothy-job-eval-run-\d+$/);
+        expect(unit).toMatch(/^--unit=agent-stewardship-job-eval-run-\d+$/);
         const name = unit.slice("--unit=".length);
         const log = join(
             root,
             "state",
-            "dorothy-agents",
+            "agent-stewardship",
             "jobs",
             `${name}.log`,
         );
@@ -733,7 +732,7 @@ describe("job.sh", () => {
         const call = await submitted();
         expect(call).toContain(`--working-directory=${await realpath(dir)}`);
         const post = call.find((arg) => arg.startsWith("ExecStopPost=")) ?? "";
-        expect(post).toMatch(/ dorothy-job-x-\d+ -$/);
+        expect(post).toMatch(/ agent-stewardship-job-x-\d+ -$/);
     });
 
     it("sets by name only the allowlist that is set, and --env names", async () => {
@@ -753,9 +752,9 @@ describe("job.sh", () => {
             dir,
             {
                 FOO: "foo-value-1",
-                DOROTHY_CLAUDE_PRIMARY: "claude-9",
-                DOROTHY_CLAUDE_PRIMARY_TOKEN_VAR: "TOKEN_X",
-                DOROTHY_OTHER: "no",
+                AGENT_STEWARDSHIP_CLAUDE_PRIMARY: "claude-9",
+                AGENT_STEWARDSHIP_CLAUDE_RESERVE: "claude-8",
+                AGENT_STEWARDSHIP_OTHER: "no",
                 SECRET_TOKEN: "hunter2",
                 HERDR_SOCKET_PATH: "/tmp/herdr.sock",
             },
@@ -764,8 +763,8 @@ describe("job.sh", () => {
         expect(code).toBe(0);
         const call = await submitted();
         expect(setenvs(call)).toEqual([
-            "DOROTHY_CLAUDE_PRIMARY",
-            "DOROTHY_CLAUDE_PRIMARY_TOKEN_VAR",
+            "AGENT_STEWARDSHIP_CLAUDE_PRIMARY",
+            "AGENT_STEWARDSHIP_CLAUDE_RESERVE",
             "FOO",
             "HERDR_SOCKET_PATH",
             "HOME",
@@ -829,7 +828,7 @@ describe("job.sh", () => {
         });
         expect(code).toBe(0);
         expect(out.split("\n")).toHaveLength(3);
-        expect(out).toMatch(/^unit: dorothy-job-x-\d+\nlog: /);
+        expect(out).toMatch(/^unit: agent-stewardship-job-x-\d+\nlog: /);
     });
 
     it("fails, printing no unit, when systemd-run refuses", async () => {
@@ -841,8 +840,8 @@ describe("job.sh", () => {
 });
 
 describe("job-stopped.sh", () => {
-    const unit = "dorothy-job-eval-run-1761900000000000000";
-    const jobs = () => join(root, "state", "dorothy-agents", "jobs");
+    const unit = "agent-stewardship-job-eval-run-1761900000000000000";
+    const jobs = () => join(root, "state", "agent-stewardship", "jobs");
     const result = () => readFile(join(jobs(), `${unit}.result`), "utf8");
     const at = "at=\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ\n$";
 
@@ -957,7 +956,7 @@ exit 3
         const [call] = await calls();
         expect(call).toContain("--on-active=1s");
         const id = (call?.find((arg) => arg.startsWith("--unit=")) ?? "").slice(
-            "--unit=dorothy-send-".length,
+            "--unit=agent-stewardship-send-".length,
         );
         expect(await readFile(join(sendsDir(), `${id}.msg`), "utf8")).toBe(
             `[from job:eval-run, scheduled] job ${unit} stopped: success (exited 0); log ${join(jobs(), `${unit}.log`)}`,
@@ -981,16 +980,28 @@ exit 3
 
 describe("with-claude.sh", () => {
     const withClaude = join(scripts, "with-claude.sh");
-    const printVar = ["sh", "-c", 'printf %s "$DOROTHY_CLAUDE_TOKEN_VAR"'];
+    const printChoice = [
+        "sh",
+        "-c",
+        'printf "%s %s" "$AGENT_STEWARDSHIP_CLAUDE_ACCOUNT" "$CLAUDE_CONFIG_DIR"',
+    ];
+    const primary = () => join(root, "accounts", "work");
+    const reserve = () => join(root, "accounts", "spare");
+    const accounts = () => ({
+        AGENT_STEWARDSHIP_CLAUDE_PRIMARY: primary(),
+        AGENT_STEWARDSHIP_CLAUDE_RESERVE: reserve(),
+    });
+    const usagePath = (account: string) =>
+        join(root, "run", `claude-usage-${account}.json`);
     // Fresh by default; the `at` has no fractions, as statusline.sh's.
     const reading = (
         five: number,
         week: number,
         ageSeconds = 0,
-        account = "claude-2",
+        account = "work",
     ) =>
         writeFile(
-            join(root, "run", `claude-usage-${account}.json`),
+            usagePath(account),
             JSON.stringify({
                 at: new Date(Date.now() - ageSeconds * 1000)
                     .toISOString()
@@ -1002,55 +1013,46 @@ describe("with-claude.sh", () => {
                 context_window: {},
             }),
         );
-    const sopsCalls = async () =>
-        (await calls()).filter((call) => call[0] === "sops");
-    const firstSops = async () => (await sopsCalls())[0] ?? [];
+    const choose = (extra: Record<string, string> = accounts()) =>
+        run(withClaude, printChoice, "", extra);
 
     beforeEach(async () => {
-        // A stand-in sops: the token is there unless "no-token" exists.
-        const path = join(root, "bin", "sops");
-        await writeFile(
-            path,
-            `#!/bin/sh\n${logging}\n[ -e "$STUB/no-token" ] && exit 1\nexit 0\n`,
-        );
-        await chmod(path, 0o755);
+        await mkdir(primary(), { recursive: true });
+        await mkdir(reserve(), { recursive: true });
     });
 
-    it("names the primary for a fresh, low reading", async () => {
+    it("picks the primary for a fresh, low reading", async () => {
         await reading(10, 20);
-        const { out, err, code } = await run(withClaude, printVar);
-        expect([out, code]).toEqual(["CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2", 0]);
+        const { out, err, code } = await choose();
+        expect([out, code]).toEqual([`primary ${primary()}`, 0]);
         expect(err).toMatch(/^\d\d:\d\d claude account: primary\n$/);
     });
 
-    it("names the reserve at 90% of the five-hour window", async () => {
+    it("picks the reserve at 90% of the five-hour window", async () => {
         await reading(90, 20);
-        const { out, err } = await run(withClaude, printVar);
-        expect(out).toBe("CLAUDE_CODE_OAUTH_TOKEN");
+        const { out, err } = await choose();
+        expect(out).toBe(`reserve ${reserve()}`);
         expect(err).toMatch(/claude account: reserve\n$/);
     });
 
-    it("names the reserve at 80% of the week", async () => {
+    it("picks the reserve at 80% of the week", async () => {
         await reading(10, 80);
-        const { out } = await run(withClaude, printVar);
-        expect(out).toBe("CLAUDE_CODE_OAUTH_TOKEN");
+        expect((await choose()).out).toBe(`reserve ${reserve()}`);
     });
 
     it("keeps the primary just under both limits", async () => {
         await reading(89.9, 79.9);
-        const { out } = await run(withClaude, printVar);
-        expect(out).toBe("CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2");
+        expect((await choose()).out).toBe(`primary ${primary()}`);
     });
 
-    it("names the primary for a stale, high reading", async () => {
+    it("keeps the primary for a stale, high reading", async () => {
         await reading(99, 99, 600);
-        const { out } = await run(withClaude, printVar);
-        expect(out).toBe("CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2");
+        expect((await choose()).out).toBe(`primary ${primary()}`);
     });
 
-    it("names the primary with no reading", async () => {
-        const { out, err, code } = await run(withClaude, printVar);
-        expect([out, code]).toEqual(["CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2", 0]);
+    it("keeps the primary with no reading", async () => {
+        const { out, err, code } = await choose();
+        expect([out, code]).toEqual([`primary ${primary()}`, 0]);
         expect(err).toMatch(/claude account: primary\n$/);
     });
 
@@ -1066,52 +1068,49 @@ describe("with-claude.sh", () => {
     ];
     for (const [label, body] of readings) {
         it(`counts a ${label} reading as none`, async () => {
-            await writeFile(
-                join(root, "run", "claude-usage-claude-2.json"),
-                body,
-            );
-            const { out, err, code } = await run(withClaude, printVar);
-            expect([out, code]).toEqual(["CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2", 0]);
+            await writeFile(usagePath("work"), body);
+            const { out, err, code } = await choose();
+            expect([out, code]).toEqual([`primary ${primary()}`, 0]);
             expect(err).not.toMatch(/jq|error/i);
         });
     }
 
-    it("names the reserve when the primary has no token", async () => {
-        await touch("no-token");
-        await reading(0, 0);
-        const { out, err } = await run(withClaude, printVar);
-        expect(out).toBe("CLAUDE_CODE_OAUTH_TOKEN");
+    it("picks the reserve when the primary's directory is gone", async () => {
+        await rm(primary(), { recursive: true });
+        const { out, err } = await choose();
+        expect(out).toBe(`reserve ${reserve()}`);
         expect(err).toMatch(/claude account: reserve\n$/);
     });
 
-    it("asks sops for the token by name, never decrypting it out", async () => {
-        await run(withClaude, printVar);
-        const call = await firstSops();
-        expect(call.slice(0, 4)).toEqual([
-            "sops",
-            "decrypt",
-            "--extract",
-            '["CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2"]',
-        ]);
-        expect(call[4]).toBe(
-            join(await realpath(join(scripts, "../../../..")), "secrets.json"),
-        );
+    it("stays on a spent primary with no reserve named", async () => {
+        await reading(99, 99);
+        const { out } = await choose({
+            AGENT_STEWARDSHIP_CLAUDE_PRIMARY: primary(),
+        });
+        expect(out).toBe(`primary ${primary()}`);
     });
 
-    it("takes another primary and token name", async () => {
-        const extra = {
-            DOROTHY_CLAUDE_PRIMARY: "claude-9",
-            DOROTHY_CLAUDE_PRIMARY_TOKEN_VAR: "NINE_TOKEN",
-        };
-        // The default account's reading is no business of claude-9.
-        await reading(99, 99);
-        const spent = await run(withClaude, printVar, "", extra);
-        expect(spent.out).toBe("NINE_TOKEN");
-        expect((await firstSops())[3]).toBe('["NINE_TOKEN"]');
+    it("takes the session's account as the primary by default", async () => {
+        await reading(10, 20);
+        const { out } = await choose({ CLAUDE_CONFIG_DIR: primary() });
+        expect(out).toBe(`primary ${primary()}`);
 
-        await reading(95, 0, 0, "claude-9");
-        const limited = await run(withClaude, printVar, "", extra);
-        expect(limited.out).toBe("CLAUDE_CODE_OAUTH_TOKEN");
+        await reading(99, 99);
+        const limited = await choose({
+            CLAUDE_CONFIG_DIR: primary(),
+            AGENT_STEWARDSHIP_CLAUDE_RESERVE: reserve(),
+        });
+        expect(limited.out).toBe(`reserve ${reserve()}`);
+    });
+
+    it("falls back on ~/.claude with nothing configured", async () => {
+        const { out } = await choose({});
+        expect(out).toBe(`primary ${join(root, ".claude")}`);
+    });
+
+    it("reads the usage of the primary, not of another account", async () => {
+        await reading(99, 99, 0, "spare");
+        expect((await choose()).out).toBe(`primary ${primary()}`);
     });
 
     it("runs its command with its arguments as written", async () => {
@@ -1128,35 +1127,6 @@ describe("with-claude.sh", () => {
     it("says its usage and runs nothing without a command", async () => {
         const { err, code } = await run(withClaude, []);
         expect([code, err]).toEqual([2, expect.stringMatching(/^usage: /)]);
-        expect(await sopsCalls()).toEqual([]);
-    });
-
-    it("finds one checkout through the .claude/skills link", async () => {
-        const checkout = join(root, "checkout");
-        const skill = join(checkout, ".agents", "skills", "agent-stewardship");
-        await mkdir(join(skill, "scripts"), { recursive: true });
-        await mkdir(join(checkout, ".claude", "skills"), { recursive: true });
-        await copyFile(withClaude, join(skill, "scripts", "with-claude.sh"));
-        await chmod(join(skill, "scripts", "with-claude.sh"), 0o755);
-        await symlink(
-            "../../.agents/skills/agent-stewardship",
-            join(checkout, ".claude", "skills", "agent-stewardship"),
-        );
-        const expected = join(await realpath(checkout), "secrets.json");
-        for (const base of [".agents", ".claude"]) {
-            await rm(join(root, "calls.log"), { force: true });
-            const script = join(
-                checkout,
-                base,
-                "skills",
-                "agent-stewardship",
-                "scripts",
-                "with-claude.sh",
-            );
-            const { code } = await run(script, ["true"]);
-            expect([base, code]).toEqual([base, 0]);
-            expect([base, (await firstSops())[4]]).toEqual([base, expected]);
-        }
     });
 });
 

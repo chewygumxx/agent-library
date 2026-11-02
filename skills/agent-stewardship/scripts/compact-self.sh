@@ -18,7 +18,7 @@
 # Needs $HERDR_PANE_ID, which names the agent; its pane, as herdr now
 # reports it, is the one locked and written. Writes `/compact`, a space
 # and the file's contents (after a space if they begin with `-`), then
-# Enter, apart and pausing between (DOROTHY_COMPACT_PAUSE seconds, 3 by
+# Enter, apart and pausing between (AGENT_STEWARDSHIP_COMPACT_PAUSE seconds, 3 by
 # default), holding the pane's lock so no message falls in between.
 #
 # Exit: 2 usage, 4 no agent on the pane, 5 the agent was not idle once
@@ -41,7 +41,7 @@ instructions=$(cat "$1")
 # The pane may have moved since $HERDR_PANE_ID was set; send-prompt.sh
 # locks the pane herdr reports, so this does too.
 pane=$(agent_pane "$HERDR_PANE_ID") || die 4 "no agent on $HERDR_PANE_ID"
-pause=${DOROTHY_COMPACT_PAUSE:-3}
+pause=${AGENT_STEWARDSHIP_COMPACT_PAUSE:-3}
 # herdr takes no `--`, so text beginning with `-` could pass for an option.
 case $instructions in
 -*) instructions=" $instructions" ;;
