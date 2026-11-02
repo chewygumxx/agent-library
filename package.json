@@ -36,7 +36,8 @@
         "lint:spell": "git ls-files -z | xargs -0 -r cspell --no-progress --no-summary --no-must-find-files",
         "lint:toml": "git ls-files -z '*.toml' | xargs -0 -r tombi format --check && git ls-files -z '*.toml' | xargs -0 -r tombi lint --error-on-warnings",
         "lint:yaml": "git ls-files -z '*.yaml' '*.yml' | xargs -0 -r prettier --check && git ls-files -z '*.yaml' '*.yml' | xargs -0 -r yamllint --strict",
-        "prepare": "test -d node_modules/husky && husky || true",
+        "prepare": "test ! -d node_modules/husky || { husky && bun run skills --no-remote; }",
+        "skills": "DO_NOT_TRACK=1 skills experimental_sync --yes --agent claude-code codex --exclude 'superpowers#using-git-worktrees' --exclude 'superpowers#using-superpowers' --exclude 'superpowers#diagnosing-superpowers'",
         "typecheck": "tsc"
     },
     "config": {
@@ -75,7 +76,9 @@
         "prettier": "^3.9.9",
         "remark-cli": "^12.0.1",
         "secretlint": "^13.0.7",
+        "skills": "^1.7.5",
         "sort-package-json": "^4.0.0",
+        "superpowers": "github:obra/superpowers",
         "typescript": "^7.0.2"
     },
     "engines": {
@@ -84,6 +87,18 @@
     "cspell": {
         "import": [
             "@chewygumxx/cspell-config"
+        ],
+        "words": [
+            "obra"
         ]
-    }
+    },
+    "skills": [
+        {
+            "source": "vercel-labs/skills",
+            "ref": "77cfce8221e6e112a70152a230abc848b8b14c19",
+            "skills": [
+                "find-skills"
+            ]
+        }
+    ]
 }

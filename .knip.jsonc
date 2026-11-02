@@ -21,20 +21,13 @@
         // Run by the package scripts through `xargs`, which knip does not
         // follow.
         "cspell",
-        "prettier",
         "secretlint",
         // Extended by @chewygumxx/commitlint-config, which depends on them.
         "@commitlint/config-conventional",
         "conventional-changelog-conventionalcommits",
-        // The Workers runtime's `cloudflare:` modules, which no package
-        // provides.
-        "cloudflare"
+        // Read for its skills by `skills experimental_sync`, not imported.
+        "superpowers"
     ],
-    // Vitest's own default, which knip does not see when a Vitest plugin,
-    // such as the Workers pool, runs the tests.
-    "vitest": {
-        "entry": ["**/*.{test,spec}.?(c|m)[jt]s?(x)"]
-    },
     // Pinned in `mise.toml` rather than installed as packages.
     "ignoreBinaries": ["actionlint", "editorconfig-checker"]
 }

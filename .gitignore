@@ -19,3 +19,9 @@ node_modules/
 /.superpowers/
 
 *.tgz
+
+
+# The skills CLI's links and copies, restored by `prepare` from
+# skills-lock.json; the repository's own skills live in skills/.
+/.agents/skills/
+/.claude/skills/
