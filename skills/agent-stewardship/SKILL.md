@@ -101,6 +101,7 @@ Each part works without the ones it does not name:
 | `with-claude.sh`                    | `statusline.sh`, and jq       |
 | `job.sh`                            | a systemd user session        |
 | `job.sh --notify`                   | that, and `send-prompt.sh`    |
+| `agent-name.sh`                     | herdr and jq                  |
 | `send-prompt.sh`, sent now          | herdr, jq and flock           |
 | `send-prompt.sh`, `--at` and `--in` | those, and systemd            |
 | `compact-self.sh`                   | herdr, jq, flock, Claude Code |
@@ -142,6 +143,7 @@ skill is installed:
   account to spend.
 - [`statusline.sh`](./scripts/statusline.sh): keeps Claude Code's budget
   and context where these rules can read them.
+- [`agent-name.sh`](./scripts/agent-name.sh): your own agent's name.
 - [`at-limit.sh`](./scripts/at-limit.sh): reruns a command stopped by a
   plan's limit.
 - [`pane-lock.sh`](./scripts/pane-lock.sh): the pane lock the senders

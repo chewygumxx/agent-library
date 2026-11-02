@@ -76,8 +76,7 @@ A batch that resumes, from its checkout, as a unit that outlives the
 session, each try choosing its account anew:
 
 ```sh
-me=$(herdr agent get "$HERDR_PANE_ID" |
-    jq -r '.result.agent.name // .result.agent.pane_id')
+me=$("$S/agent-name.sh")
 "$S/job.sh" batch --notify "$me" -- "$S/at-limit.sh" \
     --retry "$S/with-claude.sh ./run-batch --resume" \
     -- "$S/with-claude.sh" ./run-batch

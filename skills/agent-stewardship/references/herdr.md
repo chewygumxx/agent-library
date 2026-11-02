@@ -27,8 +27,12 @@ is not installed; this is how stewardship uses it.
 
 Each agent runs in a pane under a name, given in
 [the roster](../SKILL.md#the-roster). Inside a pane, `$HERDR_PANE_ID`
-names your own; `herdr agent list` shows the rest, though only those on
-the roster are yours to use.
+names your own, as it was when the pane started: moving the pane
+changes its id, and `herdr agent get` then no longer knows the old one.
+`agent-name.sh` prints your name wherever the pane has gone. An unnamed
+agent goes by its pane's id, so give one a name with `herdr agent rename`
+before arming anything for it. `herdr agent list` shows the rest, though
+only those on the roster are yours to use.
 
 - `herdr agent get <name>`: its `pane_id` and `agent_status`, such as
   `idle` or `blocked` (waiting on a dialog). The name or the pane's id

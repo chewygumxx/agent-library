@@ -31,8 +31,7 @@ schedule a prompt to yourself for five minutes after the window resets.
 The message is a pointer to the resume note, never its content:
 
 ```sh
-me=$(herdr agent get "$HERDR_PANE_ID" |
-    jq -r '.result.agent.name // .result.agent.pane_id')
+me=$("$S/agent-name.sh")
 account=$(basename -- "${CLAUDE_CONFIG_DIR:-$HOME/.claude}")
 f=$XDG_RUNTIME_DIR/claude-usage-$account.json
 note=${XDG_STATE_HOME:-$HOME/.local/state}/agent-stewardship/$me.md
