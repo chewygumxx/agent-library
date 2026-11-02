@@ -1,0 +1,34 @@
+# vim:set expandtab shiftwidth=4 filetype=yaml foldlevel=3:
+# SPDX-License-Identifier: GPL-3.0-only
+
+#
+#
+# ~chewygumxx/agentic-library.git
+# ::: :/.github/dependabot.yml
+#
+#
+
+version: 2
+updates:
+    - package-ecosystem: bun
+      directory: /
+      schedule:
+          interval: weekly
+      commit-message:
+          prefix: build
+      # A shared-config release bumps several @chewygumxx packages at once;
+      # each group opens one pull request, and a major stays on its own.
+      groups:
+          shared-config:
+              patterns: ["@chewygumxx/*"]
+              update-types: ["minor", "patch"]
+          dependencies:
+              patterns: ["*"]
+              update-types: ["minor", "patch"]
+
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: weekly
+      commit-message:
+          prefix: ci
