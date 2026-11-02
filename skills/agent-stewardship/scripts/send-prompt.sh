@@ -148,7 +148,7 @@ valid "$agent"
 [ -z "$at" ] || [ -z "$span" ] || usage
 
 if [ -z "$from" ] && [ -n "${HERDR_PANE_ID:-}" ]; then
-    from=$(agent_field "$HERDR_PANE_ID" '.name // .pane_id') || from=
+    from=$(own_name) || from=
 fi
 from=$(printf '%s' "$from" | tr -d '[:cntrl:]')
 [ -n "$from" ] || usage

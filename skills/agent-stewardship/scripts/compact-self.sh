@@ -40,7 +40,8 @@ instructions=$(cat "$1")
 [ -n "$instructions" ] || usage
 # The pane may have moved since $HERDR_PANE_ID was set; send-prompt.sh
 # locks the pane herdr reports, so this does too.
-pane=$(agent_pane "$HERDR_PANE_ID") || die 4 "no agent on $HERDR_PANE_ID"
+own=$(own_pane) || die 4 "no pane $HERDR_PANE_ID"
+pane=$(agent_pane "$own") || die 4 "no agent on $own"
 pause=${AGENT_STEWARDSHIP_COMPACT_PAUSE:-3}
 # herdr takes no `--`, so text beginning with `-` could pass for an option.
 case $instructions in

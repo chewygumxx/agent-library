@@ -46,11 +46,17 @@ const logging = `
 log() { printf '%s\\0' "$@" >>"$STUB/calls.log"; printf '\\001' >>"$STUB/calls.log"; }
 log "$(basename "$0")" "$@"
 `;
+// As the real herdr does, `pane get` follows a pane that has moved, which
+// moved.<old id> stands for here, and `agent get` knows only the new id.
 const herdr = `#!/bin/sh
 ${logging}
 case "$1 $2" in
+"pane get")
+    pane=$(cat "$STUB/moved.$3" 2>/dev/null || printf %s "$3")
+    printf '{"result":{"pane":{"pane_id":"%s"}}}\\n' "$pane"
+    ;;
 "agent get")
-    if [ -e "$STUB/absent" ]; then
+    if [ -e "$STUB/absent" ] || [ -e "$STUB/moved.$3" ]; then
         echo '{"error":{"code":"agent_not_found"}}'
         exit 1
     fi
@@ -122,7 +128,12 @@ async function calls(): Promise<string[][]> {
 // The calls that wrote to a pane, without their `herdr` prefix.
 async function writes(): Promise<string[][]> {
     return (await calls())
-        .filter((call) => call[0] === "herdr" && call[1] === "pane")
+        .filter(
+            (call) =>
+                call[0] === "herdr" &&
+                call[1] === "pane" &&
+                call[2]?.startsWith("send-"),
+        )
         .map((call) => call.slice(2));
 }
 
@@ -183,7 +194,10 @@ describe("send-prompt.sh, now", () => {
         expect(code).toBe(0);
         expect(
             (await calls())
-                .filter((call) => call[0] !== "herdr" || call[1] === "pane")
+                .filter(
+                    (call) =>
+                        call[0] !== "herdr" || call[2]?.startsWith("send-"),
+                )
                 .map((call) => call.slice(0, 3)),
         ).toEqual([
             ["herdr", "pane", "send-text"],
@@ -211,6 +225,16 @@ describe("send-prompt.sh, now", () => {
         await writeFile(join(root, "name.w9:p9"), "carol");
         const { code } = await run(send, ["bob"], "hi", {
             HERDR_PANE_ID: "w9:p9",
+        });
+        expect(code).toBe(0);
+        expect((await writes())[0]?.[2]).toBe("[from carol] hi");
+    });
+
+    it("names the sender after a pane that has moved", async () => {
+        await writeFile(join(root, "moved.w0:old"), "w9:p9");
+        await writeFile(join(root, "name.w9:p9"), "carol");
+        const { code } = await run(send, ["bob"], "hi", {
+            HERDR_PANE_ID: "w0:old",
         });
         expect(code).toBe(0);
         expect((await writes())[0]?.[2]).toBe("[from carol] hi");
@@ -418,7 +442,10 @@ describe("send-prompt.sh --deliver", () => {
         expect(code).toBe(0);
         expect(
             (await calls())
-                .filter((call) => call[0] !== "herdr" || call[1] === "pane")
+                .filter(
+                    (call) =>
+                        call[0] !== "herdr" || call[2]?.startsWith("send-"),
+                )
                 .map((call) => call.slice(0, 3)),
         ).toEqual([
             ["herdr", "pane", "send-text"],
@@ -530,12 +557,27 @@ describe("compact-self.sh", () => {
         return file;
     }
 
+    it("compacts in a pane that has moved", async () => {
+        await writeFile(join(root, "moved.w0:old"), pane);
+        const { code } = await run(compact, [await instructions("go")], "", {
+            ...quick,
+            HERDR_PANE_ID: "w0:old",
+        });
+        expect(code).toBe(0);
+        expect((await writes()).map((call) => call[1])).toEqual([
+            pane,
+            pane,
+            pane,
+        ]);
+    });
+
     it("waits, rechecks, then writes /compact and the file, then Enter", async () => {
         const text = "Resume the plan at task 5.\nKeep `this`.\n";
         const file = await instructions(text);
         const { code } = await run(compact, [file], "", quick);
         expect(code).toBe(0);
         expect(await calls()).toEqual([
+            ["herdr", "pane", "get", pane],
             ["herdr", "agent", "get", pane],
             [
                 "herdr",
@@ -593,6 +635,7 @@ describe("compact-self.sh", () => {
         const { code } = await run(compact, [file], "", quick);
         expect(code).toBe(0);
         expect(await calls()).toEqual([
+            ["herdr", "pane", "get", pane],
             ["herdr", "agent", "get", pane],
             [
                 "herdr",
@@ -666,6 +709,40 @@ describe("compact-self.sh", () => {
         expect(code).toBe(2);
         expect(err).toContain("usage");
         expect(await calls()).toEqual([]);
+    });
+});
+
+describe("agent-name.sh", () => {
+    const name = join(scripts, "agent-name.sh");
+
+    it("prints the agent's name", async () => {
+        await writeFile(join(root, "name.w9:p9"), "carol");
+        const { out, code } = await run(name, [], "", {
+            HERDR_PANE_ID: "w9:p9",
+        });
+        expect([out, code]).toEqual(["carol\n", 0]);
+    });
+
+    it("follows a pane that has moved", async () => {
+        await writeFile(join(root, "moved.w0:old"), "w9:p9");
+        await writeFile(join(root, "name.w9:p9"), "carol");
+        const { out, code } = await run(name, [], "", {
+            HERDR_PANE_ID: "w0:old",
+        });
+        expect([out, code]).toEqual(["carol\n", 0]);
+    });
+
+    it("exits 4 with no agent on the pane", async () => {
+        await touch("absent");
+        const { out, code } = await run(name, [], "", {
+            HERDR_PANE_ID: "w9:p9",
+        });
+        expect([out, code]).toEqual(["", 4]);
+    });
+
+    it("says its usage outside herdr", async () => {
+        const { err, code } = await run(name, []);
+        expect([code, err]).toEqual([2, expect.stringMatching(/^usage: /)]);
     });
 });
 
