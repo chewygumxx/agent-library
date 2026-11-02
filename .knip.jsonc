@@ -14,6 +14,8 @@
 // see. Each pattern is a regular expression.
 {
     "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+    // `bun test` finds these by name, which knip does not follow.
+    "entry": ["tests/*.test.mts"],
     "ignoreDependencies": [
         // The shared configurations, named by path in the package scripts,
         // by `extends` or `import`, or from `.secretlintrc.json`.
