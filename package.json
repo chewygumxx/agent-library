@@ -1,5 +1,5 @@
 {
-    "name": "agentic-library",
+    "name": "agent-library",
     "private": true,
     "description": "Widely compatible agent asset collection",
     "keywords": [
@@ -9,14 +9,14 @@
         "vibes",
         "vibe-coding"
     ],
-    "homepage": "https://github.com/chewygumxx/agentic-library",
+    "homepage": "https://github.com/chewygumxx/agent-library",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/chewygumxx/agentic-library.git"
+        "url": "git+https://github.com/chewygumxx/agent-library.git"
     },
     "license": "GPL-3.0-only",
     "scripts": {
-        "check": "bun run typecheck && bun run lint:biome && bun run lint:md && bun run lint:yaml && bun run lint:toml && bun run lint:emdash && bun run lint:sh && bun run lint:editorconfig && bun run lint:actions && bun run lint:package && bun run lint:deps && bun run lint:spell && bun run lint:secrets",
+        "check": "bun run typecheck && bun run test && bun run lint:biome && bun run lint:md && bun run lint:yaml && bun run lint:toml && bun run lint:emdash && bun run lint:sh && bun run lint:editorconfig && bun run lint:actions && bun run lint:package && bun run lint:deps && bun run lint:spell && bun run lint:secrets",
         "commit": "cz",
         "format": "biome format --write . && bun run format:yaml && bun run format:toml && bun run format:sh",
         "format:check": "biome format .",
@@ -38,6 +38,7 @@
         "lint:yaml": "git ls-files -z '*.yaml' '*.yml' | xargs -0 -r prettier --check && git ls-files -z '*.yaml' '*.yml' | xargs -0 -r yamllint --strict",
         "prepare": "test ! -d node_modules/husky || { husky && bun run skills --no-remote; }",
         "skills": "DO_NOT_TRACK=1 skills experimental_sync --yes --agent claude-code codex --exclude 'superpowers#using-git-worktrees' --exclude 'superpowers#using-superpowers' --exclude 'superpowers#diagnosing-superpowers'",
+        "test": "bun test",
         "typecheck": "tsc"
     },
     "config": {
@@ -89,12 +90,13 @@
             "@chewygumxx/cspell-config"
         ],
         "words": [
+            "CDPATH",
             "cgumxx",
-            "dorothydev",
             "fromdateiso",
             "Markor",
             "obra",
             "setenvs",
+            "TEMPFAIL",
             "vtracey",
             "wikilink",
             "wikilinks",

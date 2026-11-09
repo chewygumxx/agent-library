@@ -4,28 +4,29 @@
 
 #
 #
-# ~chewygumxx/agentic-library.git
+# ~chewygumxx/agent-library.git
 # ::: :/skills/agent-stewardship/scripts/with-claude.sh
 #
 #
 
-# Runs a command on the Claude account to spend: the primary whenever its
-# token is in secrets.json, unless a fresh reading of its usage shows it
-# near a limit, then the reserve. A reading is $XDG_RUNTIME_DIR/
-# claude-usage-<primary>.json, written by scripts/statusline.sh; it counts
-# when it parses, is under 600 seconds old and holds rate_limits, and the
-# primary is spent past 90% of the five-hour window or 80% of the week.
-# Anything else is no reading, and the primary is tried: a limit then
-# stops the job for at-limit.sh to retry.
-#
-# Only the name of the token's entry goes out, as DOROTHY_CLAUDE_TOKEN_VAR,
-# for dorothy and eval to read from secrets.json; no token is read here.
+# Runs a command on the Claude account to spend, by pointing
+# CLAUDE_CONFIG_DIR at it: the primary, unless a fresh reading of its usage
+# shows it near a limit or its directory is gone, then the reserve when
+# one is named. A reading is $XDG_RUNTIME_DIR/claude-usage-<account>.json,
+# written by statusline.sh, the account being the last part of the
+# primary's directory; it counts when it parses, is under 600 seconds old
+# and holds rate_limits, and the primary is spent past 90% of the
+# five-hour window or 80% of the week. Anything else is no reading, and
+# the primary is tried: a limit then stops the job for at-limit.sh to
+# retry.
 #
 #   with-claude.sh <command> [args]
 #
-# DOROTHY_CLAUDE_PRIMARY (claude-2) names the primary account and
-# DOROTHY_CLAUDE_PRIMARY_TOKEN_VAR (CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2) its
-# entry; the reserve's entry is CLAUDE_CODE_OAUTH_TOKEN.
+# AGENT_STEWARDSHIP_CLAUDE_PRIMARY names the primary's directory, by
+# default CLAUDE_CONFIG_DIR, else ~/.claude, and
+# AGENT_STEWARDSHIP_CLAUDE_RESERVE the reserve's, by default none. The
+# choice also goes out as AGENT_STEWARDSHIP_CLAUDE_ACCOUNT, primary or
+# reserve, for a command that keeps its own credentials.
 
 set -eu
 
@@ -34,13 +35,10 @@ set -eu
     exit 2
 }
 
-# Four directories above the script, resolved physically so that the
-# .claude/skills link and the .agents/skills directory meet at one checkout.
-checkout=$(CDPATH='' cd -P -- "$(dirname -- "$0")/../../../.." && pwd) || exit 1
-
-primary=${DOROTHY_CLAUDE_PRIMARY:-claude-2}
-token_var=${DOROTHY_CLAUDE_PRIMARY_TOKEN_VAR:-CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2}
-usage_file=${XDG_RUNTIME_DIR:-/nonexistent}/claude-usage-$primary.json
+default=${CLAUDE_CONFIG_DIR:-$HOME/.claude}
+primary=${AGENT_STEWARDSHIP_CLAUDE_PRIMARY:-$default}
+reserve=${AGENT_STEWARDSHIP_CLAUDE_RESERVE:-}
+usage_file=${XDG_RUNTIME_DIR:-/nonexistent}/claude-usage-$(basename -- "$primary").json
 
 # Prints "limited" for a fresh reading past a threshold; nothing otherwise.
 # An unreadable file or a missing field is an error jq's try swallows.
@@ -54,18 +52,19 @@ limited() {
     ) catch empty' "$usage_file" 2>/dev/null || true
 }
 
-account=reserve
-if sops decrypt --extract "[\"$token_var\"]" "$checkout/secrets.json" \
-    >/dev/null 2>&1; then
-    account=primary
-    [ "$(limited || true)" != limited ] || account=reserve
+account=primary
+if [ -n "$reserve" ]; then
+    if [ ! -d "$primary" ] || [ "$(limited || true)" = limited ]; then
+        account=reserve
+    fi
 fi
 
 if [ "$account" = primary ]; then
-    DOROTHY_CLAUDE_TOKEN_VAR=$token_var
+    CLAUDE_CONFIG_DIR=$primary
 else
-    DOROTHY_CLAUDE_TOKEN_VAR=CLAUDE_CODE_OAUTH_TOKEN
+    CLAUDE_CONFIG_DIR=$reserve
 fi
-export DOROTHY_CLAUDE_TOKEN_VAR
+AGENT_STEWARDSHIP_CLAUDE_ACCOUNT=$account
+export CLAUDE_CONFIG_DIR AGENT_STEWARDSHIP_CLAUDE_ACCOUNT
 printf '%s claude account: %s\n' "$(date +%H:%M || true)" "$account" >&2
 exec "$@"

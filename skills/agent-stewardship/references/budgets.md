@@ -1,19 +1,19 @@
 ---
 ctime: 2026-10-31
-mtime: 2026-11-02
+mtime: 2026-11-03
 spdx: GPL-3.0-only
 title: Budgets
 description: >-
   Estimating a job against the plans' budgets, splitting one that fits
-  nowhere, the two Claude accounts and with-claude.sh, and at-limit.sh,
-  with an example run.
+  nowhere, the Claude accounts and with-claude.sh, and at-limit.sh, with
+  an example run.
 tags:
   - agents
 ---
 
 <!--
    -
-   - ~chewygumxx/agentic-library.git
+   - ~chewygumxx/agent-library.git
    - ::: :/skills/agent-stewardship/references/budgets.md
    -
    -->
@@ -34,33 +34,29 @@ will not fit before it starts.
 
 ## The Claude accounts
 
-Two accounts, each a `CLAUDE_CONFIG_DIR`, each with an OAuth token in
-`secrets.json`:
+An account is a `CLAUDE_CONFIG_DIR`. Two are named in the environment,
+as absolute paths, where the agent is started:
 
-- The primary, `claude-2`, which the coordinating agent,
-  `dorothydev-claude-cgumxx`, runs on and spends first; its token is
-  `CLAUDE_CODE_OAUTH_TOKEN_CLAUDE2`.
-  `DOROTHY_CLAUDE_PRIMARY` and `DOROTHY_CLAUDE_PRIMARY_TOKEN_VAR`
-  override the two names.
-- The reserve, `claude`, for when the primary is spent, which
-  `dorothydev-claude-vtracey` runs on; its token is
-  `CLAUDE_CODE_OAUTH_TOKEN`.
+- `AGENT_STEWARDSHIP_CLAUDE_PRIMARY`: the account spent first, by
+  default `CLAUDE_CONFIG_DIR`, else `~/.claude`.
+- `AGENT_STEWARDSHIP_CLAUDE_RESERVE`: the account for when the primary
+  is spent. With none named, there is only the primary.
 
 `with-claude.sh <command> [args]` runs a command on the account to
-spend. It picks the primary when its token is in `secrets.json`, unless
-the primary's usage file, under 10 minutes old, has it past 90% of the
-5-hour window or 80% of the week; then the reserve. No reading, a stale
-one or a malformed one tries the primary, whose limit then stops the
-job for a retry. It exports only the token's name, as
-`DOROTHY_CLAUDE_TOKEN_VAR`, which `eval` and `dorothy` read; neither
-falls back on another token, and `eval` stops before any model call if
-the named one is missing. It prints the account chosen to stderr.
+spend, by setting `CLAUDE_CONFIG_DIR`. It picks the primary, unless the
+primary's usage file, under 10 minutes old, has it past 90% of the
+5-hour window or 80% of the week, or the primary's directory is gone;
+then the reserve. No reading, a stale one or a malformed one tries the
+primary, whose limit then stops the job for a retry. It prints the
+account chosen to stderr.
+
+A command that holds its own credentials, and so ignores
+`CLAUDE_CONFIG_DIR`, reads `AGENT_STEWARDSHIP_CLAUDE_ACCOUNT` instead,
+which is `primary` or `reserve`.
 
 ## Waiting at a limit
 
-`eval run`, `eval generate` and `dorothy --review-backfill -n all` exit
-75 when a plan's limit stops them, keeping what is done.
-`at-limit.sh` reruns such a command:
+`at-limit.sh` reruns a command that a plan's limit stopped:
 
 ```text
 at-limit.sh [--wait S] [--tries N] [--retry CMD] -- <command> [args]
@@ -71,34 +67,33 @@ again, up to N more times (40). `--retry` gives a shell string run with
 `sh -c` in place of the command after the first try, such as a resume.
 It exits with the last run's code.
 
+Exit 75 (`EX_TEMPFAIL`) is the only signal it reads. Wrap a command that
+reports a limit any other way, so that it exits 75 for that alone.
+
 ## An example run
 
-The baseline evaluation, from the checkout, as a unit that outlives the
+A batch that resumes, from its checkout, as a unit that outlives the
 session, each try choosing its account anew:
 
 ```sh
-S=.agents/skills/agent-stewardship/scripts
-W=~/eval M=~/eval/eval.baseline.toml
-E="bun run eval -- run --work $W --models $M"
-"$S/job.sh" rerun --notify dorothydev-claude-cgumxx -- "$S/at-limit.sh" \
-    --retry "$S/with-claude.sh $E --resume latest" \
-    -- "$S/with-claude.sh" sh -c "$E"
+me=$("$S/agent-name.sh")
+"$S/job.sh" batch --notify "$me" -- "$S/at-limit.sh" \
+    --retry "$S/with-claude.sh ./run-batch --resume" \
+    -- "$S/with-claude.sh" ./run-batch
 ```
 
 - `job.sh` runs the rest as a systemd unit in the current directory,
-  so start it from the checkout, and prompts the coordinating agent when
-  it stops ([recovery](./recovery.md)).
+  so start it from the checkout, and prompts you when it stops
+  ([recovery](./recovery.md)).
 - `at-limit.sh` reruns on 75 alone. Its first try starts the run; each
-  retry runs `--retry` instead, resuming the latest run.
+  retry runs `--retry` instead, resuming it.
 - `with-claude.sh` stands inside each try, so the account is chosen
   again after every wait, from the reading then.
-- `--retry` keeps `--models`, as a resume checks that the models are
-  the ones the run began with.
 
-A review of every backfilled conversation is the same shape, with no
-resume to name, as `-n all` takes up what is still marked:
+A job with no resume to name, which takes up what is left by itself,
+drops `--retry`:
 
 ```sh
-"$S/job.sh" backfill --notify dorothydev-claude-cgumxx -- "$S/at-limit.sh" \
-    -- "$S/with-claude.sh" bun run dev -- --review-backfill -n all
+"$S/job.sh" backfill --notify "$me" -- "$S/at-limit.sh" \
+    -- "$S/with-claude.sh" ./run-backfill
 ```

@@ -1,6 +1,6 @@
 ---
 ctime: 2026-10-31
-mtime: 2026-11-02
+mtime: 2026-11-03
 spdx: GPL-3.0-only
 title: Recovery
 description: >-
@@ -13,7 +13,7 @@ tags:
 
 <!--
    -
-   - ~chewygumxx/agentic-library.git
+   - ~chewygumxx/agent-library.git
    - ::: :/skills/agent-stewardship/references/recovery.md
    -
    -->
@@ -31,10 +31,10 @@ schedule a prompt to yourself for five minutes after the window resets.
 The message is a pointer to the resume note, never its content:
 
 ```sh
-S=.agents/skills/agent-stewardship/scripts
-me=dorothydev-claude-cgumxx account=claude-2  # your name and account
+me=$("$S/agent-name.sh")
+account=$(basename -- "${CLAUDE_CONFIG_DIR:-$HOME/.claude}")
 f=$XDG_RUNTIME_DIR/claude-usage-$account.json
-note=${XDG_STATE_HOME:-$HOME/.local/state}/dorothy-agents/$me.md
+note=${XDG_STATE_HOME:-$HOME/.local/state}/agent-stewardship/$me.md
 t=$(jq -er '.rate_limits.five_hour.resets_at | numbers | . + 300' \
     "$f") &&
     printf 'Woken at the reset: read %s\n' "$note" |
@@ -46,8 +46,8 @@ so `jq -e` prints nothing and fails; a past one `send-prompt.sh`
 refuses. Either way nothing is armed, and you say so.
 
 For Codex, once its limit is met, its footer's warning gives the reset
-([Codex](./codex.md)): arm a prompt to `dorothydev-codex` for five minutes
-after it, pointing at its brief or report, with the date in the time.
+([Codex](./codex.md)): arm a prompt to it for five minutes after that,
+pointing at its brief or report, with the date in the time.
 
 `--at` takes a time with its date, `YYYY-MM-DD HH:MM` or `@<epoch>`, as
 a bare time would recur daily, and refuses a past one; `--in` takes a
@@ -56,8 +56,8 @@ send is its own transient timer, collected once it has run.
 
 ## The resume note
 
-`$XDG_STATE_HOME/dorothy-agents/<agent>.md`, outside the public
-repository, rewritten whenever what it says changes:
+`$XDG_STATE_HOME/agent-stewardship/<agent>.md`, outside any repository,
+rewritten whenever what it says changes:
 
 ```markdown
 Written 2026-10-31T14:05Z.
@@ -77,14 +77,15 @@ time.
 job.sh <name> [--notify <agent>] [--env NAME]... -- <command> [args]
 ```
 
-The command runs as the user unit `dorothy-job-<name>-<epoch ns>`, in
-the current directory, its argv as written, nothing expanded. Its output
-goes to `jobs/<unit>.log` under `$XDG_STATE_HOME/dorothy-agents/`. A unit
-has none of your environment: only `PATH`, `HOME`, the `XDG_*` roots,
-`HERDR_SOCKET_PATH`, `SOPS_AGE_KEY_FILE`, `CLAUDE_CONFIG_DIR`, the
-`DOROTHY_CLAUDE_*` names and those given by `--env` cross, by name,
-never a value in an argument. A secret is loaded inside the job, by the
-command itself. It prints the unit and the log.
+The command runs as the user unit
+`agent-stewardship-job-<name>-<epoch ns>`, in the current directory, its
+argv as written, nothing expanded. Its output goes to `jobs/<unit>.log`
+under `$XDG_STATE_HOME/agent-stewardship/`. A unit has none of your
+environment: only `PATH`, `HOME`, the `XDG_*` roots,
+`HERDR_SOCKET_PATH`, `CLAUDE_CONFIG_DIR`, the
+`AGENT_STEWARDSHIP_CLAUDE_*` names and those given by `--env` cross, by
+name, never a value in an argument. A secret is loaded inside the job,
+by the command itself. It prints the unit and the log.
 
 When the job stops, however it stops, `job-stopped.sh` writes
 `jobs/<unit>.result` first: `result`, `exit_code` and `exit_status`
@@ -97,7 +98,7 @@ changes the result. `systemctl --user stop <unit>` stops a job.
 
 A scheduled send keeps its message in `sends/<id>.msg` under the state
 directory, the id being `<agent>-<epoch ns>`, and arms the unit
-`dorothy-send-<id>`, whose timer runs `send-prompt.sh --deliver <id>`.
+`agent-stewardship-send-<id>`, whose timer runs `send-prompt.sh --deliver <id>`.
 No message is in a unit or its arguments.
 
 - A delivery that finds its agent blocked or absent, before writing,
@@ -108,8 +109,9 @@ No message is in a unit or its arguments.
 - `<id>.log` records each try: `delivered`, `refused blocked, re-armed`,
   `gave up`, `partial: ...`. A delivered message's file is removed.
 
-`systemctl --user list-timers 'dorothy-send-*'` lists what is armed;
-stopping a send's `.timer` unit and removing its `.msg` cancels it.
+`systemctl --user list-timers 'agent-stewardship-send-*'` lists what is
+armed; stopping a send's `.timer` unit and removing its `.msg` cancels
+it.
 
 ## On waking
 

@@ -4,14 +4,14 @@
 
 #
 #
-# ~chewygumxx/agentic-library.git
+# ~chewygumxx/agent-library.git
 # ::: :/skills/agent-stewardship/scripts/send-prompt.sh
 #
 #
 
 # Sends a message, read from stdin, to an agent in a herdr pane, as text
 # and then Enter in two calls: Claude Code swallows an Enter arriving in
-# the same paste as text. A pause of DOROTHY_SEND_PAUSE seconds (1 by
+# the same paste as text. A pause of AGENT_STEWARDSHIP_SEND_PAUSE seconds (1 by
 # default) separates them, as Codex takes an Enter sent at once as part of
 # the paste and does not submit. A blocked agent is refused, as the text
 # would answer its dialog.
@@ -32,7 +32,7 @@
 
 set -eu
 
-pause=${DOROTHY_SEND_PAUSE:-1}
+pause=${AGENT_STEWARDSHIP_SEND_PAUSE:-1}
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 self=$here/$(basename "$0")
 # shellcheck source=pane-lock.sh source-path=SCRIPTDIR
@@ -114,7 +114,7 @@ if [ -n "$deliver" ]; then
         fi
         tries=$((tries + 1))
         printf '%s\n' "$tries" >"$sends/$id.tries"
-        if arm "dorothy-send-$id-$tries" --on-active=5min "$id" >/dev/null; then
+        if arm "agent-stewardship-send-$id-$tries" --on-active=5min "$id" >/dev/null; then
             log "refused $1, re-armed"
             exit 0
         fi
@@ -148,7 +148,7 @@ valid "$agent"
 [ -z "$at" ] || [ -z "$span" ] || usage
 
 if [ -z "$from" ] && [ -n "${HERDR_PANE_ID:-}" ]; then
-    from=$(agent_field "$HERDR_PANE_ID" '.name // .pane_id') || from=
+    from=$(own_name) || from=
 fi
 from=$(printf '%s' "$from" | tr -d '[:cntrl:]')
 [ -n "$from" ] || usage
@@ -195,8 +195,8 @@ sends=$(state_dir)/sends
 mkdir -p "$sends"
 id=$agent-$(date +%s%N)
 (umask 077 && printf '%s' "[from $from, scheduled] $message" >"$sends/$id.msg")
-if ! arm "dorothy-send-$id" "$option" "$id" >/dev/null; then
+if ! arm "agent-stewardship-send-$id" "$option" "$id" >/dev/null; then
     rm -f "${sends:?}/${id:?}.msg"
     die 1 'systemd-run refused the timer'
 fi
-printf 'unit: dorothy-send-%s\nwhen: %s\n' "$id" "$resolved"
+printf 'unit: agent-stewardship-send-%s\nwhen: %s\n' "$id" "$resolved"

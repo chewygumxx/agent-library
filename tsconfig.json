@@ -1,5 +1,5 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig.json",
     "extends": "@chewygumxx/tsconfig/bun",
-    "include": [".commitlintrc.mts"]
+    "include": [".commitlintrc.mts", "tests"]
 }

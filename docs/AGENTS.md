@@ -12,7 +12,7 @@ tags:
 
 <!--
    -
-   - ~chewygumxx/agentic-library.git
+   - ~chewygumxx/agent-library.git
    - ::: :/docs/AGENTS.md
    -
    -->

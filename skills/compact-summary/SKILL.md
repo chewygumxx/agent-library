@@ -1,20 +1,20 @@
 ---
 ctime: 2026-10-09
-mtime: 2026-10-31
+mtime: 2026-11-03
 spdx: GPL-3.0-only
 title: Compact Summary
 name: compact-summary
 description: >-
-  Generate a compaction invocation
+  Use when deciding whether to compact the conversation, when context is
+  running out, or when writing the instructions for a /compact.
 tags:
-  - llm
-  - claude
+  - agents
 argument-hint: "[foreseeable work]"
 ---
 
 <!--
    -
-   - ~chewygumxx/agentic-library.git
+   - ~chewygumxx/agent-library.git
    - ::: :/skills/compact-summary/SKILL.md
    -
    -->
@@ -23,7 +23,7 @@ argument-hint: "[foreseeable work]"
 
 Assess compacting the conversation now, for the work you foresee being asked
 to do next. Work stated on the next line overrides your own expectation;
-when it is blank, rely on yours.
+when it is blank, or shows an unfilled placeholder, rely on yours.
 
 Foreseeable work: $ARGUMENTS
 
@@ -35,6 +35,9 @@ Justification: <one terse sentence>
 Appraisal: <1-100>
 Risk: <1-100>
 ```
+
+Where your client's compaction command has another name, print that in
+place of `/compact`.
 
 ## Instructions
 

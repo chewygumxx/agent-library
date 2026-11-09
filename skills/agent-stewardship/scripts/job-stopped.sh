@@ -4,7 +4,7 @@
 
 #
 #
-# ~chewygumxx/agentic-library.git
+# ~chewygumxx/agent-library.git
 # ::: :/skills/agent-stewardship/scripts/job-stopped.sh
 #
 #
@@ -37,7 +37,7 @@ unit=$1
 agent=$2
 case $unit in
 *[!A-Za-z0-9._-]*) usage ;;
-dorothy-job-*-[0-9]*) ;;
+agent-stewardship-job-*-[0-9]*) ;;
 *) usage ;;
 esac
 case $agent in
@@ -45,8 +45,8 @@ case $agent in
 *) ;;
 esac
 
-# The unit is dorothy-job-<name>-<epoch ns>, and a name may hold dashes.
-name=${unit#dorothy-job-}
+# The unit is agent-stewardship-job-<name>-<epoch ns>, and a name may hold dashes.
+name=${unit#agent-stewardship-job-}
 name=${name%-*}
 
 jobs=$(state_dir)/jobs

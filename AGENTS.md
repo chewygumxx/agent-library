@@ -1,21 +1,21 @@
 ---
 ctime: 2026-09-29
-mtime: 2026-11-03
+mtime: 2026-11-09
 spdx: GPL-3.0-only
-title: AGENTS.md
-description: Repository agentic instructions
+title: Repository Agent Instructions
+description: Repository agent instructions
 tags:
   - agents
 ---
 
 <!--
    -
-   - ~chewygumxx/agentic-library.git
+   - ~chewygumxx/agent-library.git
    - ::: :/AGENTS.md
    -
    -->
 
-# Repository Agentic Instructions
+# Repository Agent Instructions
 
 ## Continuous Granular Commits
 

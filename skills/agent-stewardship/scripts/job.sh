@@ -4,7 +4,7 @@
 
 #
 #
-# ~chewygumxx/agentic-library.git
+# ~chewygumxx/agent-library.git
 # ::: :/skills/agent-stewardship/scripts/job.sh
 #
 #
@@ -16,7 +16,7 @@
 #
 #   job.sh <name> [--notify <agent>] [--env NAME]... -- <command> [args]
 #
-# The unit is dorothy-job-<name>-<epoch ns>, run in the caller's working
+# The unit is agent-stewardship-job-<name>-<epoch ns>, run in the caller's working
 # directory, its output appended to jobs/<unit>.log under the state
 # directory. Only a short allowlist of the environment crosses into the
 # unit, by name, as are the --env names; no value is ever in an argument.
@@ -96,11 +96,10 @@ done
 [ $# -gt 0 ] || usage
 
 for var in PATH HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME \
-    XDG_CACHE_HOME XDG_RUNTIME_DIR HERDR_SOCKET_PATH SOPS_AGE_KEY_FILE \
-    CLAUDE_CONFIG_DIR; do
+    XDG_CACHE_HOME XDG_RUNTIME_DIR HERDR_SOCKET_PATH CLAUDE_CONFIG_DIR; do
     if printenv "$var" >/dev/null; then add "$var"; fi
 done
-for var in $(env | sed -n 's/^\(DOROTHY_CLAUDE_[A-Za-z0-9_]*\)=.*/\1/p'); do
+for var in $(env | sed -n 's/^\(AGENT_STEWARDSHIP_CLAUDE_[A-Za-z0-9_]*\)=.*/\1/p'); do
     add "$var"
 done
 for var in $extra; do
@@ -109,7 +108,7 @@ done
 
 jobs=$(state_dir)/jobs
 mkdir -p "$jobs" || die 1 "cannot make $jobs"
-unit=dorothy-job-$name-$(date +%s%N)
+unit=agent-stewardship-job-$name-$(date +%s%N)
 log=$jobs/$unit.log
 stop=$here/job-stopped.sh
 plain "$stop"

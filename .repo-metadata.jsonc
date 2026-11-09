@@ -3,16 +3,16 @@
 
 //
 //
-// ~chewygumxx/agentic-library.git
+// ~chewygumxx/agent-library.git
 // ::: :/.repo-metadata.jsonc
 //
 //
 
 {
     "$schema": "https://raw.githubusercontent.com/chewygumxx/sync-repo-metadata/refs/tags/v2/schema.json",
-    "name": "agentic-library",
+    "name": "agent-library",
     "owner": "chewygumxx",
-    "slug": "chewygumxx/agentic-library",
+    "slug": "chewygumxx/agent-library",
     "default_branch": "main",
     "description": "Widely compatible agent asset collection",
     "category": "repository",

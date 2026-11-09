@@ -4,15 +4,15 @@
 
 #
 #
-# ~chewygumxx/agentic-library.git
+# ~chewygumxx/agent-library.git
 # ::: :/skills/agent-stewardship/scripts/pane-lock.sh
 #
 #
 
-# Sourced by send-prompt.sh and compact-self.sh: `. "$here/pane-lock.sh"`.
-# A pane takes one writer at a time, so a message cannot land among
-# another's text and Enter. Status and pane come from `herdr agent get`,
-# which takes an agent's name or its pane's id.
+# Sourced by the other scripts: `. "$here/pane-lock.sh"`. A pane takes one
+# writer at a time, so a message cannot land among another's text and
+# Enter. Status and pane come from `herdr agent get`, which takes an
+# agent's name or its pane's id.
 
 # die <exit code> <message>
 die() {
@@ -24,7 +24,7 @@ die() {
 
 # Prints the directory of state kept between runs, making it private.
 state_dir() {
-    dir=${XDG_STATE_HOME:-$HOME/.local/state}/dorothy-agents
+    dir=${XDG_STATE_HOME:-$HOME/.local/state}/agent-stewardship
     mkdir -p "$dir" || die 1 "cannot make $dir"
     chmod 700 "$dir"
     printf '%s\n' "$dir"
@@ -33,7 +33,7 @@ state_dir() {
 # Holds the pane's lock on fd 9 until the script exits.
 lock_pane() {
     [ -n "${XDG_RUNTIME_DIR:-}" ] || die 1 'XDG_RUNTIME_DIR is not set'
-    dir=$XDG_RUNTIME_DIR/dorothy-agents
+    dir=$XDG_RUNTIME_DIR/agent-stewardship
     mkdir -p "$dir" || die 1 "cannot make $dir"
     chmod 700 "$dir"
     name=$(printf '%s' "$1" | tr -c '[:alnum:]' _)
@@ -53,4 +53,18 @@ agent_pane() {
 
 agent_status() {
     agent_field "$1" .agent_status
+}
+
+# Prints the id of your own pane as it is now. $HERDR_PANE_ID keeps the id
+# the pane started with, which moving the pane changes: `herdr pane get`
+# follows that, and `herdr agent get` does not.
+own_pane() {
+    herdr pane get "${HERDR_PANE_ID:?}" 2>/dev/null |
+        jq -er '.result.pane.pane_id'
+}
+
+# Prints your own agent's name, else its pane's id.
+own_name() {
+    own=$(own_pane) || return 1
+    agent_field "$own" '.name // .pane_id'
 }
