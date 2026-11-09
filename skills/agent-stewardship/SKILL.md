@@ -9,11 +9,6 @@ compatibility: >-
   Linux. Messaging needs herdr, jq and flock; long jobs and timed sends
   need a systemd user session; budget readings need Claude Code's status
   line and jq.
-ctime: 2026-10-31
-mtime: 2026-11-03
-spdx: GPL-3.0-only
-tags:
-  - agents
 ---
 
 <!--
@@ -118,7 +113,7 @@ Read the one the work at hand needs:
   starting anything in the background shell.
 - [Codex](./references/codex.md): before dispatching to Codex, reading
   its footer, answering its questions or approvals, or starting it anew.
-- [herdr](./references/herdr.md): before sending any message to an
+- [Herdr](./references/herdr.md): before sending any message to an
   agent, and when a send is refused.
 - [Budgets](./references/budgets.md): before estimating or splitting a
   job, choosing a Claude account, or running a command that stops at a

@@ -1,14 +1,9 @@
 ---
-ctime: 2026-10-31
-mtime: 2026-11-03
-spdx: GPL-3.0-only
-title: herdr
+name: herdr
 description: >-
   Agents and panes in herdr, waiting on and reading them, sending a
   message with send-prompt.sh under the pane lock, and what its label
   does not prove.
-tags:
-  - agents
 ---
 
 <!--
@@ -18,7 +13,7 @@ tags:
    -
    -->
 
-# herdr
+# Herdr
 
 The `herdr` skill covers herdr itself, as does `herdr --skill` where it
 is not installed; this is how stewardship uses it.

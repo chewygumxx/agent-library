@@ -1,14 +1,9 @@
 ---
-ctime: 2026-10-31
-mtime: 2026-11-03
-spdx: GPL-3.0-only
-title: Budgets
+name: budgets
 description: >-
   Estimating a job against the plans' budgets, splitting one that fits
   nowhere, the Claude accounts and with-claude.sh, and at-limit.sh, with
   an example run.
-tags:
-  - agents
 ---
 
 <!--

@@ -4,11 +4,6 @@ description: >-
   Use when creating, entering, checking, repairing or removing a git
   worktree, or when a worktree lacks dependencies, git hooks, skills or
   ignored files such as .env that the main checkout has.
-ctime: 2026-10-15
-mtime: 2026-11-03
-spdx: GPL-3.0-only
-tags:
-  - agents
 ---
 
 <!--

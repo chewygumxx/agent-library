@@ -1,13 +1,8 @@
 ---
-ctime: 2026-10-31
-mtime: 2026-11-03
-spdx: GPL-3.0-only
-title: Claude Code
+name: claude-code
 description: >-
   Reading Claude Code's budget and context, compacting a session from its
   own pane, the accounts subagents spend, and the background shell.
-tags:
-  - agents
 ---
 
 <!--
