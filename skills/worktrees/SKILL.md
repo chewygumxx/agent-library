@@ -13,7 +13,7 @@ tags:
 
 <!--
    -
-   - ~chewygumxx/agentic-library.git
+   - ~chewygumxx/agent-library.git
    - ::: :/skills/worktrees/SKILL.md
    -
    -->

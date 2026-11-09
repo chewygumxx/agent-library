@@ -1,8 +1,8 @@
 ---
 ctime: 2026-11-02
-mtime: 2026-11-03
+mtime: 2026-11-09
 spdx: GPL-3.0-only
-title: agentic-library
+title: agent-library
 description: Widely compatible agent asset collection
 tags:
   - agent
@@ -14,12 +14,12 @@ tags:
 
 <!--
    -
-   - ~chewygumxx/agentic-library.git
+   - ~chewygumxx/agent-library.git
    - ::: :/README.md
    -
    -->
 
-# agentic-library
+# agent-library
 
 Widely compatible agent asset collection.
 
@@ -42,8 +42,8 @@ Install all of them, or one, into a project, or with `--global` for every
 project:
 
 ```sh
-bunx skills add chewygumxx/agentic-library
-bunx skills add chewygumxx/agentic-library --skill worktrees --global
+bunx skills add chewygumxx/agent-library
+bunx skills add chewygumxx/agent-library --skill worktrees --global
 ```
 
 `agent-stewardship` is configured by a roster in your agent instructions

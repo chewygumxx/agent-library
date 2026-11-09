@@ -3,7 +3,7 @@
 
 //
 //
-// ~chewygumxx/agentic-library.git
+// ~chewygumxx/agent-library.git
 // ::: :/tests/skills.test.mts
 //
 //

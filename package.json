@@ -1,5 +1,5 @@
 {
-    "name": "agentic-library",
+    "name": "agent-library",
     "private": true,
     "description": "Widely compatible agent asset collection",
     "keywords": [
@@ -9,10 +9,10 @@
         "vibes",
         "vibe-coding"
     ],
-    "homepage": "https://github.com/chewygumxx/agentic-library",
+    "homepage": "https://github.com/chewygumxx/agent-library",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/chewygumxx/agentic-library.git"
+        "url": "git+https://github.com/chewygumxx/agent-library.git"
     },
     "license": "GPL-3.0-only",
     "scripts": {

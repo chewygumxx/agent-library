@@ -14,7 +14,7 @@ argument-hint: "[foreseeable work]"
 
 <!--
    -
-   - ~chewygumxx/agentic-library.git
+   - ~chewygumxx/agent-library.git
    - ::: :/skills/compact-summary/SKILL.md
    -
    -->
