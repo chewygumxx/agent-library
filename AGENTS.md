@@ -29,7 +29,7 @@ context, include such within the commit message body.
 
 `.repo-metadata.jsonc` holds the GitHub repository's own description, topics
 and licence. CI applies it on every push to `main`, so edit those settings
-there and never in the GitHub web interface: nothing rejects a web edit, and
+there and never in the GitHub web interface: Nothing rejects a web edit, and
 the next push silently reverts it.
 
 <!-- vim:set expandtab shiftwidth=2 filetype=markdown foldlevel=3: -->
