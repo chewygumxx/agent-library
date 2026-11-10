@@ -1,0 +1,32 @@
+# vim:set expandtab shiftwidth=4 filetype=toml:
+# SPDX-License-Identifier: GPL-3.0-only
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/.config/wt.toml
+#
+#
+
+#
+# https://worktrunk.dev/hook/
+#
+# Provisions each new worktree before anyone enters it, so an agent or shell
+# can commit straight away: husky's pre-commit hook calls the mise tools and
+# node_modules. Blocking pre-start steps run after the user's own, so a
+# node_modules copied in by `wt step copy-ignored` is reused, not fetched again.
+#
+
+# The toolchain in mise.toml: bun, and the linters pre-commit calls.
+[[pre-start]]
+tools = "mise install"
+
+# The locked dependency tree. Its prepare script installs husky's hooks,
+# which core.hooksPath expects at .husky/_ in every worktree.
+[[pre-start]]
+install = "mise run install"
+
+# Third-party skills, pinned by skills-lock.json. prepare syncs offline,
+# which restores none in a fresh checkout, so fetch them here.
+[[pre-start]]
+skills = "bun run skills"
