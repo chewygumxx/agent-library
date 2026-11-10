@@ -1,5 +1,5 @@
 ---
-name: codex
+title: Codex
 description: >-
   Dispatching work to Codex in herdr, reading its footer, answering its
   questions and approvals, its effort, and starting it anew.

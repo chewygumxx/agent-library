@@ -1,5 +1,5 @@
 ---
-name: herdr
+title: Herdr
 description: >-
   Agents and panes in herdr, waiting on and reading them, sending a
   message with send-prompt.sh under the pane lock, and what its label

@@ -1,5 +1,5 @@
 ---
-name: budgets
+title: Budgets
 description: >-
   Estimating a job against the plans' budgets, splitting one that fits
   nowhere, the Claude accounts and with-claude.sh, and at-limit.sh, with

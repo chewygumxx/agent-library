@@ -1,5 +1,5 @@
 ---
-name: claude-code
+title: Claude Code
 description: >-
   Reading Claude Code's budget and context, compacting a session from its
   own pane, the accounts subagents spend, and the background shell.

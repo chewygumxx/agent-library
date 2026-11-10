@@ -1,5 +1,5 @@
 ---
-name: recovery
+title: Recovery
 description: >-
   Arming wake-ups for yourself and for Codex, the resume note, long jobs
   with job.sh and their results, the record of scheduled sends, and what
