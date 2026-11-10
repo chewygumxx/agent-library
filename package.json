@@ -3,11 +3,7 @@
     "private": true,
     "description": "Curated agent asset catalogue prioritising harness and model compatibility.",
     "keywords": [
-        "agent",
-        "skills",
-        "agent-skills",
-        "vibes",
-        "vibe-coding"
+        "agent-skills"
     ],
     "homepage": "https://github.com/chewygumxx/agent-library#readme",
     "repository": {
