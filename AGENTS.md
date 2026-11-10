@@ -1,11 +1,6 @@
 ---
-ctime: 2026-09-29
-mtime: 2026-11-09
-spdx: GPL-3.0-only
 title: Repository Agent Instructions
 description: Repository agent instructions
-tags:
-  - agents
 ---
 
 <!--

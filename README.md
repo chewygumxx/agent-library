@@ -5,12 +5,6 @@ spdx: GPL-3.0-only
 title: agent-library
 description: >-
   Curated agent asset catalogue prioritising harness and model compatibility.
-tags:
-  - agent
-  - skills
-  - agent-skills
-  - vibes
-  - vibe-coding
 ---
 
 <!--
