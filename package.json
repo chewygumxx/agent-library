@@ -89,6 +89,7 @@
             "@chewygumxx/cspell-config"
         ],
         "words": [
+            "anthropics",
             "CDPATH",
             "cgumxx",
             "fromdateiso",
@@ -105,11 +106,18 @@
     },
     "skills": [
         {
-            "source": "vercel-labs/skills",
+            "ref": "2c5958ecac7cee2b583967a2c4981d0f4a75c579",
+            "skills": [
+                "skill-creator"
+            ],
+            "source": "anthropics/skills"
+        },
+        {
             "ref": "77cfce8221e6e112a70152a230abc848b8b14c19",
             "skills": [
                 "find-skills"
-            ]
+            ],
+            "source": "vercel-labs/skills"
         }
     ]
 }
