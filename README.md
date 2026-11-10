@@ -23,13 +23,6 @@ tags:
 
 Widely compatible agent asset collection.
 
-## Layout
-
-- `skills/` holds this repository's own skills, one directory each.
-- `.agents/skills/` and `.claude/skills/` hold third-party skills, linked
-  in by the [`skills`](https://skills.sh/) CLI and pinned by
-  `skills-lock.json`. Git ignores both directories.
-
 ## Skills
 
 | Skill               | For                                                  |
