@@ -26,9 +26,7 @@
         "secretlint",
         // Extended by @chewygumxx/commitlint-config, which depends on them.
         "@commitlint/config-conventional",
-        "conventional-changelog-conventionalcommits",
-        // Read for its skills by `skills experimental_sync`, not imported.
-        "superpowers"
+        "conventional-changelog-conventionalcommits"
     ],
     // Pinned in `mise.toml` rather than installed as packages.
     "ignoreBinaries": ["actionlint", "editorconfig-checker"]

@@ -56,9 +56,10 @@ names the project it was imported from.
 
 ## Development
 
-- `bun install` links the third-party skills from `node_modules` offline.
-- `bun run skills` syncs them all, fetching the git sources listed under
-  `skills` in `package.json`.
+- `bun run skills` fetches the third-party skills listed under `skills` in
+  `package.json`, at the commits pinned there, into `.agents/skills/` and
+  `.claude/skills/`. Run it once after cloning: both directories are
+  gitignored, and `bun install` only relinks skills already fetched.
 - `bun test` runs the tests; `bun run check` runs them and every other
   check CI runs; `bun run commit` composes a commit.
 

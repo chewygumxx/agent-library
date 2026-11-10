@@ -37,7 +37,7 @@
         "lint:toml": "git ls-files -z '*.toml' | xargs -0 -r tombi format --check && git ls-files -z '*.toml' | xargs -0 -r tombi lint --error-on-warnings",
         "lint:yaml": "git ls-files -z '*.yaml' '*.yml' | xargs -0 -r prettier --check && git ls-files -z '*.yaml' '*.yml' | xargs -0 -r yamllint --strict",
         "prepare": "test ! -d node_modules/husky || { husky && bun run skills --no-remote; }",
-        "skills": "DO_NOT_TRACK=1 skills experimental_sync --yes --agent claude-code codex --exclude 'superpowers#using-git-worktrees' --exclude 'superpowers#using-superpowers' --exclude 'superpowers#diagnosing-superpowers'",
+        "skills": "DO_NOT_TRACK=1 skills experimental_sync --yes --agent claude-code codex",
         "test": "bun test",
         "typecheck": "tsc"
     },
@@ -79,7 +79,6 @@
         "secretlint": "^13.0.7",
         "skills": "^1.7.6",
         "sort-package-json": "^4.0.0",
-        "superpowers": "github:obra/superpowers",
         "typescript": "^7.0.2"
     },
     "engines": {
@@ -94,7 +93,6 @@
             "cgumxx",
             "fromdateiso",
             "Markor",
-            "obra",
             "setenvs",
             "TEMPFAIL",
             "vtracey",
