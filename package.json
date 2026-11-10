@@ -1,7 +1,7 @@
 {
     "name": "agent-library",
     "private": true,
-    "description": "Widely compatible agent asset collection",
+    "description": "Curated agent asset catalogue prioritising harness and model compatibility.",
     "keywords": [
         "agent",
         "skills",

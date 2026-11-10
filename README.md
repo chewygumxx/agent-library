@@ -3,7 +3,8 @@ ctime: 2026-11-02
 mtime: 2026-11-09
 spdx: GPL-3.0-only
 title: agent-library
-description: Widely compatible agent asset collection
+description: >-
+  Curated agent asset catalogue prioritising harness and model compatibility.
 tags:
   - agent
   - skills
@@ -21,7 +22,11 @@ tags:
 
 # agent-library
 
-Widely compatible agent asset collection.
+Deployable agent assets for provision of terse context that is both model aware
+and harness invariant. Models with greater reasoning capacity are not burdened
+with the context catered to and available for lower reasoning models. Assets are
+crafted to not depend, nor even consider the feature difference between
+harnesses.
 
 ## Skills
 
