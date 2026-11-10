@@ -77,6 +77,7 @@ alias       = "t"
 run         = "bun test"
 
 # Wrapper to refresh remote task data upon every execution.
+# https://github.com/chewygumxx/.github#readme
 [tasks.act]
 description = "Locally execute GitHub Actions (CI) with Docker"
 run         = "mise run --no-cache act-cached"
@@ -90,4 +91,3 @@ alias       = [
 description = "[Internal] Locally execute GitHub Actions (CI) with Docker"
 file        = "git::https://github.com/chewygumxx/.github.git//tasks/act?ref=v1"
 hide        = true
-# See README.md of `chewygumxx/.github` <https://github.com/chewygumxx/.github>
