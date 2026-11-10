@@ -4,6 +4,7 @@ description: >-
   Use when creating, entering, checking, repairing or removing a git
   worktree, or when a worktree lacks dependencies, git hooks, skills or
   ignored files such as .env that the main checkout has.
+license: GPL-3.0-only
 ---
 
 <!--

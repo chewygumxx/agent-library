@@ -9,6 +9,7 @@ compatibility: >-
   Linux. Messaging needs herdr, jq and flock; long jobs and timed sends
   need a systemd user session; budget readings need Claude Code's status
   line and jq.
+license: GPL-3.0-only
 ---
 
 <!--

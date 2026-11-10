@@ -4,6 +4,7 @@ description: >-
   Use when deciding whether to compact the conversation, when context is
   running out, or when writing the instructions for a /compact.
 argument-hint: "[foreseeable work]"
+license: GPL-3.0-only
 ---
 
 <!--
