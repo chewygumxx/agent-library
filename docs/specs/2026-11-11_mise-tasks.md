@@ -168,6 +168,14 @@ locally.
   rely on that.
 - A repository's task outside the set takes a name that cannot be mistaken
   for one in it.
+- `lint:commit` takes the message file as an argument, so `lint` does not
+  depend on it; only the `commit-msg` hook runs it (my call, from the
+  review).
+- Tools mise pins run by name. npm tools run as
+  `bunx --bun --no-install <cli>`, as plain `mise run` gives neither
+  `node_modules/.bin` on `PATH` nor the Bun-as-node behaviour `bun run`
+  gives (my call, from the review; in the skill, the runtime's own
+  equivalent).
 
 ### The `--staged` switch
 
@@ -192,12 +200,28 @@ locally.
   configuration governing them) and `outputs = { auto = true }`, so mise
   skips it when nothing changed since it last passed. `mise run --force`
   overrides.
-- Unverified, and the first probe of the plan: whether mise keeps a
-  `--staged` run's record apart from a full run's. If it does not, a
-  `--staged` run must not update the record. The user expects this can be
-  solved and wants it proven by experiment. The skill states whichever rule
-  the probe supports; if neither holds, checking tasks drop `sources`, and
-  the report records why.
+- The rule: a skip never lets an unchecked file through, in a full run or
+  a `--staged` one.
+- Probed on mise 2026.11.4: mise keeps a separate record per set of
+  arguments, so a `--staged` pass never makes a full run skip, nor the
+  reverse.
+- That alone leaves one hole: a second `--staged` run compares against the
+  first, so a file staged later but last edited before that pass would be
+  skipped. A `--staged` run therefore also takes git's index as a source,
+  which changes whenever anything is staged. Its path differs per
+  worktree, so it is templated, and only for `--staged` runs, so full runs
+  do not rerun on every `git add`. Probed, with the expected skips and
+  reruns in each case:
+
+  ```toml
+  sources = [
+      '*.md',
+      '{% if usage.staged %}{{ exec(command="git rev-parse --git-path index") }}{% else %}*.md{% endif %}',
+  ]
+  ```
+
+- The plan repeats these probes in this repository before relying on
+  them, and records them in its report.
 
 ### Hooks
 
@@ -227,7 +251,9 @@ The skill directory holds, besides `SKILL.md`:
 - A starting `tasks.toml` holding the standard set and its `--staged`
   wiring, with placeholders where a repository fills in its own tools.
 - Both pass the repository's linters, and the script has tests in
-  `tests/`, as `agent-stewardship`'s scripts do.
+  `tests/`, as `agent-stewardship`'s scripts do. A test also fails when
+  this repository's `scripts/` copy differs from the skill's bundled one
+  (my call, from the review).
 
 How the rules divide between `SKILL.md` and any `references/` file is the
 builder's, guided by the README's aim that a model is not given context it
@@ -256,15 +282,19 @@ does not need.
 - `README.md`'s skill table lists the new skill, and its Development
   section speaks of `mise run`.
 - Every mention of a removed `bun run <name>` becomes `mise run <name>`.
+- No check changes what it accepts: `lint:emdash` keeps covering
+  untracked files in a full run, as `git grep --untracked` does today.
 
 ## Constraints
 
 - `bun run check` stays what the shared CI runs. The shared CI installs
   mise through `jdx/mise-action` before it.
 - A fresh worktree made by worktrunk installs, links skills and installs
-  hooks unaided. Before relying on it, the plan probes whether mise runs
-  tasks from an untrusted `.config/mise/config.toml` in a new worktree, and
-  no step ever runs `mise trust` on a user's behalf.
+  hooks unaided. The reviewer's probe on mise 2026.11.4 found `mise run`
+  and `mise install` trust the active `.config/mise/config.toml` by
+  themselves, with or without a terminal; the plan repeats it in a real
+  new worktree before relying on it. No step ever runs `mise trust`
+  explicitly on a user's behalf.
 - The skill stands alone once copied out: `tests/skills.test.mts` holds.
   Its description starts "Use when" and stays within 1024 characters.
 - Documents follow `docs/AGENTS.md`: frontmatter, breadcrumb, lines of at
