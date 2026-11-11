@@ -29,9 +29,8 @@
         "prettier": "^3.9.9",
         "remark-cli": "^12.0.1",
         "secretlint": "^13.0.7",
-        "skills": "^1.7.5",
+        "skills": "^1.7.6",
         "sort-package-json": "^4.0.0",
-        "superpowers": "github:obra/superpowers",
         "typescript": "^7.0.2",
       },
     },
@@ -1207,7 +1206,7 @@
 
     "signal-exit": ["signal-exit@4.1.0", "", {}, "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw=="],
 
-    "skills": ["skills@1.7.5", "", { "dependencies": { "tar": "^7.5.20", "yaml": "^2.8.3" }, "bin": { "skills": "bin/cli.mjs", "add-skill": "bin/cli.mjs" } }, "sha512-ihrB0rgqZ6Ibs2gp3iIHmIeJkz1OVc8lIExF50eFl4Mbc71sfGGUQB3jtNQZnIHWIbzBenaYmq2ZeY4V1jFjtg=="],
+    "skills": ["skills@1.7.6", "", { "dependencies": { "tar": "^7.5.20", "yaml": "^2.8.3" }, "bin": { "skills": "bin/cli.mjs", "add-skill": "bin/cli.mjs" } }, "sha512-dAee29yRGin7ub6VHwmifLEfHrysGD41yq4RkY0gg7QQh0wyQKWfhiORGb/r6uNpKWc9A1GY8yowV07Lh+4rCg=="],
 
     "slash": ["slash@5.1.0", "", {}, "sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg=="],
 
@@ -1246,8 +1245,6 @@
     "strip-json-comments": ["strip-json-comments@3.1.1", "", {}, "sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig=="],
 
     "structured-source": ["structured-source@4.0.0", "", { "dependencies": { "boundary": "^2.0.0" } }, "sha512-qGzRFNJDjFieQkl/sVOI2dUjHKRyL9dAJi2gCPGJLbJHBIkyOHxjuocpIEfbLioX+qSJpvbYdT49/YCdMznKxA=="],
-
-    "superpowers": ["superpowers@github:obra/superpowers#2ce8aa1", {}, "obra-superpowers-2ce8aa1", "sha512-//2g0M5KBN+ssyc2KhVye0dDGTEbGccYtnxQadU/QPdxMibN+0A7VpvIDIia3M6hoRI9sANzIeUQ4cl8GBWULQ=="],
 
     "supports-color": ["supports-color@5.5.0", "", { "dependencies": { "has-flag": "^3.0.0" } }, "sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow=="],
 

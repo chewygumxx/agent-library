@@ -1,27 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "brainstorming": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/brainstorming/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "759eaa3b4b3d06d9e1c98c24bcd58eeb4d2faf724b3239f81e8559aa41e28fdd"
-    },
-    "dispatching-parallel-agents": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "b011107f17188e0b2898bb1856b5bac8b49537cc86e737c82126558a235bd62a"
-    },
-    "executing-plans": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/executing-plans/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "cc778643e7d4cf455da8fab2d435d6ba26e59c0fc4aef29d892540185a54ff60"
-    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "ref": "77cfce8221e6e112a70152a230abc848b8b14c19",
@@ -30,68 +9,11 @@
       "computedHash": "913b9d37d0d54047dd65222bb8c67b2bf04e3cb87dcad1729068d7a8b2c8c396",
       "via": "."
     },
-    "finishing-a-development-branch": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/finishing-a-development-branch/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "4f571e7befb8b0946d9d7770232c818812412e9ab1dfb811f847edfba1fc6275"
-    },
-    "receiving-code-review": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/receiving-code-review/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "59361179fc9225173e0c145ffd9bafbf9fdbf8b43ce3dc308497a0b4f83a6063"
-    },
-    "requesting-code-review": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/requesting-code-review/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "b095ac8c980339436b41de9989328f3f288f2e2a70452df28452bbeb6531d604"
-    },
-    "subagent-driven-development": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/subagent-driven-development/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "92a9fefb8e11bfc77e95bb1557a1b01b390261a53fa71b3aa773a5c8aa2cf3a9"
-    },
-    "systematic-debugging": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/systematic-debugging/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "276fb0aadb002ab930cc2a56de89e16995a2e3e70b33587652bf0a5fb123148d"
-    },
-    "test-driven-development": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/test-driven-development/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "3cfe4ebb6fa7288f668d87880d279c8e48f7a92b63415e296857060f5ce22e05"
-    },
-    "verification-before-completion": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/verification-before-completion/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "b529822bdac4b197b180fe12225cff86b930b65910435103c10622df7f041651"
-    },
-    "writing-plans": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/writing-plans/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "c2647b5bf067be353a893e5a39a632cbbeb7ad81e61fa5ae227ece5490029073"
-    },
-    "writing-skills": {
-      "source": "superpowers",
-      "sourceType": "node_modules",
-      "skillPath": "skills/writing-skills/SKILL.md",
-      "version": "7.0.1",
-      "computedHash": "5dfeb4768effae27e94cc7ce27420f461a09fbca4c6e3846cf7acb1765d5d3d7"
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2"
     }
   }
 }

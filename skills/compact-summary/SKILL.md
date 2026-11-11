@@ -1,15 +1,10 @@
 ---
-ctime: 2026-10-09
-mtime: 2026-11-03
-spdx: GPL-3.0-only
-title: Compact Summary
 name: compact-summary
 description: >-
   Use when deciding whether to compact the conversation, when context is
   running out, or when writing the instructions for a /compact.
-tags:
-  - agents
 argument-hint: "[foreseeable work]"
+license: GPL-3.0-only
 ---
 
 <!--

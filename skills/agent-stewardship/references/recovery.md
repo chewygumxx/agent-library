@@ -1,14 +1,9 @@
 ---
-ctime: 2026-10-31
-mtime: 2026-11-03
-spdx: GPL-3.0-only
 title: Recovery
 description: >-
   Arming wake-ups for yourself and for Codex, the resume note, long jobs
   with job.sh and their results, the record of scheduled sends, and what
   to do on waking.
-tags:
-  - agents
 ---
 
 <!--

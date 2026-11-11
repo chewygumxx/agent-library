@@ -1,13 +1,8 @@
 ---
-ctime: 2026-10-31
-mtime: 2026-11-03
-spdx: GPL-3.0-only
 title: Codex
 description: >-
   Dispatching work to Codex in herdr, reading its footer, answering its
   questions and approvals, its effort, and starting it anew.
-tags:
-  - agents
 ---
 
 <!--

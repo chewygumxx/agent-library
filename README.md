@@ -3,13 +3,8 @@ ctime: 2026-11-02
 mtime: 2026-11-09
 spdx: GPL-3.0-only
 title: agent-library
-description: Widely compatible agent asset collection
-tags:
-  - agent
-  - skills
-  - agent-skills
-  - vibes
-  - vibe-coding
+description: >-
+  Curated agent asset catalogue prioritising harness and model compatibility.
 ---
 
 <!--
@@ -21,22 +16,20 @@ tags:
 
 # agent-library
 
-Widely compatible agent asset collection.
-
-## Layout
-
-- `skills/` holds this repository's own skills, one directory each.
-- `.agents/skills/` and `.claude/skills/` hold third-party skills, linked
-  in by the [`skills`](https://skills.sh/) CLI and pinned by
-  `skills-lock.json`. Git ignores both directories.
+Deployable agent assets for provision of terse context that is both model aware
+and harness invariant. Models with greater reasoning capacity are not burdened
+with the context catered to and available for lower reasoning models. Assets are
+crafted to not depend, nor even consider the feature difference between
+harnesses.
 
 ## Skills
 
-| Skill               | For                                                  |
-| ------------------- | ---------------------------------------------------- |
-| `agent-stewardship` | Running agents within their context and usage limits |
-| `compact-summary`   | Writing and rating a compaction's instructions       |
-| `worktrees`         | Making git worktrees that come out whole             |
+| Skill                    | For                                                  |
+| ------------------------ | ---------------------------------------------------- |
+| `agent-stewardship`      | Running agents within their context and usage limits |
+| `compact-summary`        | Writing and rating a compaction's instructions       |
+| `configuring-mise-tasks` | Writing and naming a repository's mise tasks alike   |
+| `worktrees`              | Making git worktrees that come out whole             |
 
 Install all of them, or one, into a project, or with `--global` for every
 project:
@@ -56,10 +49,12 @@ names the project it was imported from.
 
 ## Development
 
-- `bun install` links the third-party skills from `node_modules` offline.
-- `bun run skills` syncs them all, fetching the git sources listed under
-  `skills` in `package.json`.
-- `bun test` runs the tests; `bun run check` runs them and every other
-  check CI runs; `bun run commit` composes a commit.
+- `mise run skills` fetches the third-party skills listed under `skills`
+  in `package.json`, at the commits pinned there, into `.agents/skills/`
+  and `.claude/skills/`. Run it once after cloning: both directories are
+  gitignored, and `bun install` only relinks skills already fetched.
+- `mise run test` runs the tests; `mise run check` runs them and every
+  other check CI runs; `mise run commit` composes a commit. `mise tasks`
+  lists the rest. `bun run check` runs `mise run check`, for CI.
 
 <!-- vim:set expandtab shiftwidth=2 filetype=markdown foldlevel=3: -->
