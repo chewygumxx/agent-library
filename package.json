@@ -12,30 +12,9 @@
     },
     "license": "GPL-3.0-only",
     "scripts": {
-        "check": "bun run typecheck && bun run test && bun run lint:biome && bun run lint:md && bun run lint:yaml && bun run lint:toml && bun run lint:emdash && bun run lint:sh && bun run lint:editorconfig && bun run lint:actions && bun run lint:package && bun run lint:deps && bun run lint:spell && bun run lint:secrets",
-        "commit": "cz",
-        "format": "biome format --write . && bun run format:yaml && bun run format:toml && bun run format:sh",
-        "format:check": "biome format .",
-        "format:sh": "git ls-files -z | xargs -0 -r shfmt -f | tr '\\n' '\\0' | xargs -0 -r shfmt -w",
-        "format:toml": "git ls-files -z '*.toml' | xargs -0 -r tombi format",
-        "format:yaml": "git ls-files -z '*.yaml' '*.yml' | xargs -0 -r prettier --write --log-level warn",
-        "lint": "biome lint .",
-        "lint:actions": "actionlint -config-file node_modules/@chewygumxx/actionlint-config/config.yaml",
-        "lint:biome": "biome ci .",
-        "lint:deps": "knip",
-        "lint:editorconfig": "editorconfig-checker -config node_modules/@chewygumxx/editorconfig-checker-config/config.json",
-        "lint:emdash": "git grep -nIP --untracked '\\x{2014}'; test $? -eq 1",
-        "lint:md": "git ls-files -z '*.md' | xargs -0 -r remark --frail --quiet --no-stdout && git ls-files -z '*.md' | xargs -0 -r markdownlint-cli2",
-        "lint:package": "sort-package-json --check package.json",
-        "lint:secrets": "git ls-files -z | xargs -0 -r secretlint",
-        "lint:sh": "git ls-files -z | xargs -0 -r shfmt -f | tr '\\n' '\\0' | xargs -0 -r shfmt -d && git ls-files -z | xargs -0 -r shfmt -f | tr '\\n' '\\0' | xargs -0 -r shellcheck --rcfile node_modules/@chewygumxx/shellcheck-config/config.shellcheckrc",
-        "lint:spell": "git ls-files -z | xargs -0 -r cspell --no-progress --no-summary --no-must-find-files",
-        "lint:toml": "git ls-files -z '*.toml' | xargs -0 -r tombi format --check && git ls-files -z '*.toml' | xargs -0 -r tombi lint --error-on-warnings",
-        "lint:yaml": "git ls-files -z '*.yaml' '*.yml' | xargs -0 -r prettier --check && git ls-files -z '*.yaml' '*.yml' | xargs -0 -r yamllint --strict",
+        "check": "mise run check",
         "prepare": "test ! -d node_modules/husky || { husky && bun run skills --no-remote; }",
-        "skills": "DO_NOT_TRACK=1 skills experimental_sync --yes --agent claude-code codex",
-        "test": "bun test",
-        "typecheck": "tsc"
+        "skills": "DO_NOT_TRACK=1 skills experimental_sync --yes --agent claude-code codex"
     },
     "config": {
         "commitizen": {

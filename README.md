@@ -48,11 +48,12 @@ names the project it was imported from.
 
 ## Development
 
-- `bun run skills` fetches the third-party skills listed under `skills` in
-  `package.json`, at the commits pinned there, into `.agents/skills/` and
-  `.claude/skills/`. Run it once after cloning: both directories are
+- `mise run skills` fetches the third-party skills listed under `skills`
+  in `package.json`, at the commits pinned there, into `.agents/skills/`
+  and `.claude/skills/`. Run it once after cloning: both directories are
   gitignored, and `bun install` only relinks skills already fetched.
-- `bun test` runs the tests; `bun run check` runs them and every other
-  check CI runs; `bun run commit` composes a commit.
+- `mise run test` runs the tests; `mise run check` runs them and every
+  other check CI runs; `mise run commit` composes a commit. `mise tasks`
+  lists the rest. `bun run check` runs `mise run check`, for CI.
 
 <!-- vim:set expandtab shiftwidth=2 filetype=markdown foldlevel=3: -->

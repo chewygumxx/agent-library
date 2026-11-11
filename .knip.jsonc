@@ -17,17 +17,18 @@
     // `bun test` finds these by name, which knip does not follow.
     "entry": ["tests/*.test.mts"],
     "ignoreDependencies": [
-        // The shared configurations, named by path in the package scripts,
+        // The shared configurations, named by path in the mise tasks,
         // by `extends` or `import`, or from `.secretlintrc.json`.
         "@chewygumxx/.+",
-        // Run by the package scripts through `xargs`, which knip does not
-        // follow.
-        "cspell",
-        "secretlint",
         // Extended by @chewygumxx/commitlint-config, which depends on them.
         "@commitlint/config-conventional",
-        "conventional-changelog-conventionalcommits"
+        "conventional-changelog-conventionalcommits",
+        // Run by the mise tasks, which knip does not read.
+        "@biomejs/biome",
+        "cspell",
+        "secretlint",
+        "sort-package-json"
     ],
-    // Pinned in `mise.toml` rather than installed as packages.
-    "ignoreBinaries": ["actionlint", "editorconfig-checker"]
+    // The tool manager, which `package.json` runs for its `check`.
+    "ignoreBinaries": ["mise"]
 }
