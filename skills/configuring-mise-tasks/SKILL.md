@@ -119,11 +119,12 @@ depends = ['lint {% if usage.staged %}--staged{% endif %}', "test"]
 ```
 
 A task that cannot narrow to files, such as the type check or the tests,
-takes no flag and always checks everything.
+takes no flag, declares no `sources`, and checks everything on every run.
 
 ## Skipping unchanged work
 
-Each checking task declares `sources`, the files it reads and the
+Each checking task that reads particular files declares `sources`, the
+files it reads and the
 configuration that governs them, the lockfile and the tool pins in
 `.config/mise/config.toml` among it, and `outputs = { auto = true }`. mise
 then skips it when nothing changed since it last passed.

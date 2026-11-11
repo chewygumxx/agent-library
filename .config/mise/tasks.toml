@@ -59,8 +59,6 @@ depends     = [
 [test]
 description = "Run the tests"
 alias       = "t"
-sources     = [ "bunfig.toml", "package.json", ".config/mise/config.toml", "tests/**", "scripts/**", "skills/**", "bun.lock" ]
-outputs     = { auto = true }
 run         = "bun test"
 
 [check]
@@ -161,8 +159,6 @@ run         = [
 
 ["lint:deps"]
 description = "Find unused files and dependencies with knip"
-sources     = [ "**/*", "!node_modules/**" ]
-outputs     = { auto = true }
 run         = "bunx --bun --no-install knip"
 
 ["lint:package"]
@@ -173,8 +169,6 @@ run         = "bunx --bun --no-install sort-package-json --check package.json"
 
 ["lint:types"]
 description = "Type-check with tsc"
-sources     = [ ".config/mise/config.toml", "**/*.mts", "**/*.ts", "!node_modules/**", "tsconfig.json", "bun.lock" ]
-outputs     = { auto = true }
 run         = "bunx --bun --no-install tsc"
 
 ["lint:commit"]

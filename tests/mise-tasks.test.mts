@@ -56,6 +56,14 @@ describe.each(Object.entries(files))("%s", (_, path) => {
         expect(readFileSync(path, "utf8")).not.toContain("vars.index");
     });
 
+    it("never skips a check that reads the whole project", () => {
+        const whole = Object.fromEntries(tasks(path));
+        for (const name of ["lint:types", "lint:deps", "test"]) {
+            if (!whole[name]) continue;
+            expect([name, whole[name].sources]).toEqual([name, undefined]);
+        }
+    });
+
     it("watches the lockfile and tool pins in every check", () => {
         for (const [name, task] of tasks(path)) {
             if (!task.sources) continue;

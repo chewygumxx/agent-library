@@ -41,8 +41,6 @@ depends     = [ "format:<kind> {% if usage.staged %}--staged{% endif %}" ]
 [test]
 description = "Run the tests"
 alias       = "t"
-sources     = [ "<tests and the code they test>", "<lockfile>", ".config/mise/config.toml" ]
-outputs     = { auto = true }
 run         = "<test command>"
 
 [check]
@@ -68,8 +66,6 @@ run         = "scripts/with-files.sh ${usage_staged:+--staged} '*.<ext>' -- <lin
 
 ["lint:types"]
 description = "Type-check with <type checker>"
-sources     = [ "<typed sources>", "!node_modules/**", "<type checker config>", "<lockfile>", ".config/mise/config.toml" ]
-outputs     = { auto = true }
 run         = "<type checker>"
 
 ["lint:commit"]
