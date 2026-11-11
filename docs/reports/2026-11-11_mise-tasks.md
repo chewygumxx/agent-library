@@ -183,3 +183,34 @@ work tree, where the eager `[vars]` exec failed. Checks also watch the
 lockfile and tool pins. Every path `with-files.sh` gives starts `./`, so
 no tracked `-x` or `--version` reaches a tool as an option; Biome still
 ignores `./skills-lock.json`. `mise run --force check` passed after each.
+
+## Fresh worktree, and a second leak recovered
+
+The first `wt switch --create` attempt showed the main checkout as bare.
+The leaky test run, before its fix, had also written into the shared
+repository config: `core.bare = true`, `user.name = test`,
+`user.email = test@example.invalid` and `commit.gpgsign = false`. Twelve
+commits made since had been authored as `test`. The config was backed up,
+restored (`core.bare = false`, the three other keys removed), and the
+twelve commits, not yet pushed, re-authored with their dates and trees
+unchanged (`git diff` against the old tip is empty). With `GIT_DIR`,
+`GIT_WORK_TREE` and `GIT_INDEX_FILE` set as a hook sets them, the script
+tests now leave the shared config byte for byte unchanged.
+
+Then, with the user's leave to approve worktrunk's hooks by `--yes`:
+
+```text
+$ wt switch --create probe/mise-tasks --base=@ --no-cd --yes
+trust: ~/dev/_worktree/agent-library/probe-mise-tasks: trusted
+node_modules: yes
+skills: .agents/skills: find-skills  .claude/skills: find-skills
+hooksPath: .husky/_ (populated)
+mise run check rc=0
+```
+
+No one ran `mise trust`; worktrunk's `mise install` trusted the config.
+A throwaway commit ran the pre-commit hook, with the type check, knip and
+the tests in full. Its first try failed on one stewardship test, "holds
+the pane's lock until its Enter is sent", at Bun's 5-second limit while
+the linters ran beside it; the second try passed. That test predates this
+work, but tests now run on every commit, beside the linters.
