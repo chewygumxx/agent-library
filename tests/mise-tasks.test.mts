@@ -68,3 +68,10 @@ describe.each(Object.entries(files))("%s", (_, path) => {
         }
     });
 });
+
+it("the skill recommends no config-wide index variable", () => {
+    const skill = join(root, "skills", "configuring-mise-tasks", "SKILL.md");
+    const text = readFileSync(skill, "utf8");
+    expect(text).not.toContain("vars.index");
+    expect(text).toContain("--path-format=absolute --git-path index");
+});

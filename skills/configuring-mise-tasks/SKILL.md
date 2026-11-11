@@ -55,13 +55,9 @@ Remove any other entry, and change its mentions from `bun run <name>` to
   ```toml
   [task_config]
   includes = [".config/mise/tasks.toml"]
-
-  [vars]
-  index = '{{ exec(command="git rev-parse --git-path index") }}'
   ```
 
-  The include path is from the repository root. `vars.index` is git's
-  index, whose path differs per worktree.
+  The include path is from the repository root.
 
 - `.config/mise/tasks.toml` holds every task, as TOML. A task's `run` is
   one line, or a short list of one-line commands. Anything longer is a
@@ -128,19 +124,25 @@ takes no flag and always checks everything.
 ## Skipping unchanged work
 
 Each checking task declares `sources`, the files it reads and the
-configuration that governs them, and `outputs = { auto = true }`. mise
+configuration that governs them, the lockfile and the tool pins in
+`.config/mise/config.toml` among it, and `outputs = { auto = true }`. mise
 then skips it when nothing changed since it last passed.
 
 - mise keeps a record per set of arguments, so a `--staged` pass never
   lets a full run skip.
 - A `--staged` run also takes git's index as a source, so a later staged
-  run never skips a file staged since:
+  run never skips a file staged since. Ask git for an absolute path: mise
+  runs the template from `.config/mise/`, where a relative one points
+  outside the repository and is silently dropped. Keep it inside the
+  task, where it runs for `--staged` alone, as it fails outside git:
 
   ```toml
   sources = [
       "**/*.md",
       "!node_modules/**",
-      "{% if usage.staged %}{{ vars.index }}{% endif %}",
+      "bun.lock",
+      ".config/mise/config.toml",
+      '{% if usage.staged %}{{ exec(command="git rev-parse --path-format=absolute --git-path index") }}{% endif %}',
   ]
   ```
 
