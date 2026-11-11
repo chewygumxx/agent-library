@@ -58,7 +58,3 @@ node = "24"
 
 [task_config]
 includes = [ ".config/mise/tasks.toml" ]
-
-[vars]
-# git's index, a source of every --staged run. Its path differs per worktree.
-index = '{{ exec(command="git rev-parse --git-path index") }}'

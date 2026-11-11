@@ -41,7 +41,7 @@ depends     = [ "format:<kind> {% if usage.staged %}--staged{% endif %}" ]
 [test]
 description = "Run the tests"
 alias       = "t"
-sources     = [ "<tests and the code they test>", "<lockfile>" ]
+sources     = [ "<tests and the code they test>", "<lockfile>", ".config/mise/config.toml" ]
 outputs     = { auto = true }
 run         = "<test command>"
 
@@ -58,7 +58,7 @@ depends     = [ "lint {% if usage.staged %}--staged{% endif %}", "test" ]
 ["lint:<kind>"]
 description = "Lint <kind> files with <linter>"
 usage       = 'flag "--staged"'
-sources     = [ "**/*.<ext>", "!node_modules/**", "<linter config>", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "**/*.<ext>", "!node_modules/**", "<linter config>", "<lockfile>", ".config/mise/config.toml", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = "scripts/with-files.sh ${usage_staged:+--staged} '*.<ext>' -- <linter, check only>"
 
@@ -68,7 +68,7 @@ run         = "scripts/with-files.sh ${usage_staged:+--staged} '*.<ext>' -- <lin
 
 ["lint:types"]
 description = "Type-check with <type checker>"
-sources     = [ "<typed sources>", "!node_modules/**", "<type checker config>" ]
+sources     = [ "<typed sources>", "!node_modules/**", "<type checker config>", "<lockfile>", ".config/mise/config.toml" ]
 outputs     = { auto = true }
 run         = "<type checker>"
 

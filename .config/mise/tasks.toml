@@ -59,7 +59,7 @@ depends     = [
 [test]
 description = "Run the tests"
 alias       = "t"
-sources     = [ "tests/**", "scripts/**", "skills/**", "bun.lock" ]
+sources     = [ "bunfig.toml", "package.json", ".config/mise/config.toml", "tests/**", "scripts/**", "skills/**", "bun.lock" ]
 outputs     = { auto = true }
 run         = "bun test"
 
@@ -76,35 +76,35 @@ depends     = [ "lint {% if usage.staged %}--staged{% endif %}", "test" ]
 ["lint:actions"]
 description = "Lint GitHub workflows with actionlint"
 usage       = 'flag "--staged"'
-sources     = [ ".github/workflows/*", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "bun.lock", ".config/mise/config.toml", ".github/workflows/*", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = "scripts/with-files.sh ${usage_staged:+--staged} '.github/workflows/*.yaml' '.github/workflows/*.yml' -- actionlint -config-file node_modules/@chewygumxx/actionlint-config/config.yaml"
 
 ["lint:biome"]
 description = "Lint and check formatting with Biome"
 usage       = 'flag "--staged"'
-sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = "scripts/with-files.sh ${usage_staged:+--staged} -- bunx --bun --no-install biome ci --no-errors-on-unmatched --files-ignore-unknown=true"
 
 ["lint:editorconfig"]
 description = "Check files against .editorconfig"
 usage       = 'flag "--staged"'
-sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = "scripts/with-files.sh ${usage_staged:+--staged} -- editorconfig-checker -config node_modules/@chewygumxx/editorconfig-checker-config/config.json"
 
 ["lint:emdash"]
 description = "Refuse em dashes"
 usage       = 'flag "--staged"'
-sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = "scripts/lint-emdash.sh ${usage_staged:+--staged}"
 
 ["lint:md"]
 description = "Lint Markdown with remark and markdownlint"
 usage       = 'flag "--staged"'
-sources     = [ "**/*.md", "!node_modules/**", ".markdownlint-cli2.jsonc", "package.json", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "bun.lock", ".config/mise/config.toml", "**/*.md", "!node_modules/**", ".markdownlint-cli2.jsonc", "package.json", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = [
     "scripts/with-files.sh ${usage_staged:+--staged} '*.md' -- bunx --bun --no-install remark --frail --quiet --no-stdout",
@@ -114,14 +114,14 @@ run         = [
 ["lint:secrets"]
 description = "Scan for secrets with secretlint"
 usage       = 'flag "--staged"'
-sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = "scripts/with-files.sh ${usage_staged:+--staged} -- bunx --bun --no-install secretlint"
 
 ["lint:sh"]
 description = "Lint shell scripts with shfmt and ShellCheck"
 usage       = 'flag "--staged"'
-sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = [
     "scripts/with-files.sh ${usage_staged:+--staged} -- shfmt -f | tr '\\n' '\\0' | xargs -0 -r shfmt -d",
@@ -131,14 +131,14 @@ run         = [
 ["lint:spell"]
 description = "Check spelling with cspell"
 usage       = 'flag "--staged"'
-sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "**/*", "!node_modules/**", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = "scripts/with-files.sh ${usage_staged:+--staged} -- bunx --bun --no-install cspell --no-progress --no-summary --no-must-find-files"
 
 ["lint:toml"]
 description = "Lint and check formatting of TOML with Tombi"
 usage       = 'flag "--staged"'
-sources     = [ "**/*.toml", "!node_modules/**", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "bun.lock", ".config/mise/config.toml", "**/*.toml", "!node_modules/**", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = [
     "scripts/with-files.sh ${usage_staged:+--staged} '*.toml' -- tombi format --check",
@@ -148,7 +148,7 @@ run         = [
 ["lint:yaml"]
 description = "Lint and check formatting of YAML with Prettier and yamllint"
 usage       = 'flag "--staged"'
-sources     = [ "**/*.yaml", "**/*.yml", "!node_modules/**", ".yamllint.yaml", "package.json", "{% if usage.staged %}{{ vars.index }}{% endif %}" ]
+sources     = [ "bun.lock", ".config/mise/config.toml", "**/*.yaml", "**/*.yml", "!node_modules/**", ".yamllint.yaml", "package.json", "{% if usage.staged %}{{ exec(command=\"git rev-parse --path-format=absolute --git-path index\") }}{% endif %}" ]
 outputs     = { auto = true }
 run         = [
     "scripts/with-files.sh ${usage_staged:+--staged} '*.yaml' '*.yml' -- bunx --bun --no-install prettier --check",
@@ -167,13 +167,13 @@ run         = "bunx --bun --no-install knip"
 
 ["lint:package"]
 description = "Check package.json is sorted"
-sources     = [ "package.json" ]
+sources     = [ "bun.lock", ".config/mise/config.toml", "package.json" ]
 outputs     = { auto = true }
 run         = "bunx --bun --no-install sort-package-json --check package.json"
 
 ["lint:types"]
 description = "Type-check with tsc"
-sources     = [ "**/*.mts", "**/*.ts", "!node_modules/**", "tsconfig.json", "bun.lock" ]
+sources     = [ ".config/mise/config.toml", "**/*.mts", "**/*.ts", "!node_modules/**", "tsconfig.json", "bun.lock" ]
 outputs     = { auto = true }
 run         = "bunx --bun --no-install tsc"
 
