@@ -116,3 +116,22 @@ rc=0
 ```
 
 `bun run check`, still the old chain, passed.
+
+### Task 4: hooks, worktrunk and `package.json`
+
+`package.json` holds `check`, `prepare` and `skills` alone. knip then
+reported `@biomejs/biome` and `sort-package-json` unused and `mise`
+unlisted, as only mise tasks run them; `.knip.jsonc` ignores them.
+`bun run check` and `mise run check` both passed.
+
+The hooks, each tried with a throwaway commit then undone:
+
+| Staged                                          | Outcome                     |
+| ----------------------------------------------- | --------------------------- |
+| One clean Markdown file                         | Committed; `lint:md` ran    |
+| A line with an em dash                          | Refused by `lint:emdash`    |
+| `probe-y.md`, edited before `probe-x.md` passed | Refused, MD018 on `probe-y` |
+| Nothing, message `bad message`                  | Refused by `lint:commit`    |
+
+In the first, `lint:types` and `test` reported `sources up-to-date,
+skipping`, as nothing they read had changed.
