@@ -162,6 +162,11 @@ as `mise run` puts the pinned tools there itself. Where even that is
 missing, as in a git GUI, the hook manager's per-user startup file adds
 it, such as husky's `~/.config/husky/init.sh`.
 
+As `check` runs the tests, the pre-commit hook runs them with git's own
+variables set, such as `GIT_INDEX_FILE`. A test that runs git in a
+scratch repository must drop every `GIT_*` variable from its environment,
+or it writes to the real repository's index and branch.
+
 ## Trust
 
 Includes and templates make mise refuse the configuration until it is
