@@ -103,6 +103,9 @@ beforeEach(async () => {
         XDG_STATE_HOME: join(root, "state"),
         STUB: root,
         TZ: "UTC",
+        // A tool on PATH may be a mise shim, which refuses this repository's
+        // config unless trusted; the user's trust lives under the real HOME.
+        MISE_TRUSTED_CONFIG_PATHS: join(import.meta.dir, ".."),
         // The pause before Enter, not waited out but for its own test.
         AGENT_STEWARDSHIP_SEND_PAUSE: "0",
     };
