@@ -134,3 +134,30 @@ The hooks, each tried with a throwaway commit, then undone:
 
 In the first, `lint:types` and `test` reported `sources up-to-date,
 skipping`, as nothing they read had changed.
+
+### Task 6: the skill
+
+`tests/skills.test.mts` and `tests/configuring-mise-tasks.test.mts`
+pass: the bundled `with-files.sh` matches `scripts/with-files.sh` but for
+its breadcrumb, and the template holds the standard set and no `act`.
+
+The first commit of those tests ran them through the new pre-commit
+hook, which exports `GIT_INDEX_FILE`. The script tests passed it to git in
+their scratch repositories, which then wrote this worktree's index and
+three commits on its branch. The branch was reset, keeping the working
+tree, to the commit before them; the tests now drop every `GIT_*`
+variable, and the skill warns of it.
+
+### Done looks like
+
+- `mise run --force check` passed in 14.2 seconds, and `bun run check`
+  passed. A second `mise run check` skipped all 14 tasks with `sources`.
+- One staged Markdown file: the hook linted it alone; `lint:types` and
+  `test` skipped, nothing they read having changed (see Rulings).
+- `package.json` scripts: `check`, `prepare`, `skills`.
+- `mise tasks` lists the standard set, each with its description and
+  alias.
+- `git grep -nP '\x{2014}'` finds nothing.
+- A new worktree from `wt switch --create`: not run. worktrunk asks the
+  user to approve the changed pre-start command, `mise run skills`, and
+  that approval is theirs to give.
