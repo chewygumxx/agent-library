@@ -66,13 +66,13 @@ describe("with-files.sh", () => {
         await files({ "a.md": "a", "b.txt": "b" });
         git("add", "a.md", "b.txt");
         await files({ "c.md": "c" });
-        expect(withFiles("*.md", "--", ...print).files).toEqual(["a.md"]);
+        expect(withFiles("*.md", "--", ...print).files).toEqual(["./a.md"]);
     });
 
     it("passes every tracked file when given no pathspec", async () => {
         await files({ "a.md": "a", "b.txt": "b" });
         git("add", "a.md", "b.txt");
-        expect(withFiles("--", ...print).files).toEqual(["a.md", "b.txt"]);
+        expect(withFiles("--", ...print).files).toEqual(["./a.md", "./b.txt"]);
     });
 
     it("with --staged, passes staged additions and modifications only", async () => {
@@ -82,8 +82,8 @@ describe("with-files.sh", () => {
         await files({ "a.md": "a2", "b.md": "b2", "c.md": "c" });
         git("add", "a.md", "c.md");
         expect(withFiles("--staged", "*.md", "--", ...print).files).toEqual([
-            "a.md",
-            "c.md",
+            "./a.md",
+            "./c.md",
         ]);
     });
 
@@ -93,7 +93,7 @@ describe("with-files.sh", () => {
         git("commit", "-qm", "init");
         git("rm", "-q", "gone.md");
         git("mv", "x.md", "y.md");
-        expect(withFiles("--staged", "--", ...print).files).toEqual(["y.md"]);
+        expect(withFiles("--staged", "--", ...print).files).toEqual(["./y.md"]);
     });
 
     it("passes names with spaces, newlines and a leading dash intact", async () => {
@@ -101,11 +101,25 @@ describe("with-files.sh", () => {
         await files(Object.fromEntries(names.map((n) => [n, n])));
         git("add", "--", ...names);
         expect(withFiles("*.md", "--", ...print).files).toEqual(
-            [...names].sort(),
+            names.map((n) => `./${n}`).sort(),
         );
         expect(withFiles("--staged", "*.md", "--", ...print).files).toEqual(
-            [...names].sort(),
+            names.map((n) => `./${n}`).sort(),
         );
+    });
+
+    it("passes no name a tool could read as an option", async () => {
+        const names = ["-dash.md", "--version"];
+        await files(Object.fromEntries(names.map((n) => [n, n])));
+        git("add", "--", ...names);
+        const refuse = [
+            "sh",
+            "-c",
+            "for a; do case $a in -*) exit 9;; esac; done",
+            "sh",
+        ];
+        expect(withFiles("--", ...refuse).code).toBe(0);
+        expect(withFiles("--staged", "--", ...refuse).code).toBe(0);
     });
 
     it("runs nothing and succeeds when no file matches", async () => {

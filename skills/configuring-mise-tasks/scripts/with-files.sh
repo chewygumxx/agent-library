@@ -13,7 +13,8 @@
 #
 # Runs the command with the tracked files matching the pathspecs appended,
 # or with --staged, the staged files added, copied, modified or renamed.
-# No pathspec means every file. Runs nothing when no file matches.
+# No pathspec means every file. Runs nothing when no file matches. Each
+# path starts ./, so no tool reads a file named -x as an option.
 
 set -eu
 
@@ -40,9 +41,10 @@ list() {
         [ -n "$keep" ] && set -- "$@" "$arg"
     done
     if [ -n "$staged" ]; then
-        git diff -z --cached --name-only --diff-filter=ACMR -- "$@"
+        git diff -z --cached --name-only --diff-filter=ACMR \
+            --line-prefix=./ -- "$@"
     else
-        git ls-files -z -- "$@"
+        git ls-files -z --format='./%(path)' -- "$@"
     fi
 }
 
