@@ -137,6 +137,13 @@ Mentions of a removed `bun run <name>` in the repository's docs become
   from the repository root, not from `.config/mise/`.
 - Tasks are TOML only. A task longer than one line calls a script in
   `scripts/`, which runs without mise. No file tasks with `#MISE` comments.
+- The one exception, the user's: `act`, and any CI task that depends on a
+  remote script referenced by tag and fetched uncached. Such a task is a
+  hidden remote file task named `<name>-cached`, its `file` a `git::` URL
+  pinned to a tag (`?ref=v1`), run through a visible wrapper task,
+  `run = "mise run --no-cache <name>-cached"`, so each run fetches the
+  tag. Hooks never call one. The hidden task's description starts
+  `[Internal]`.
 - Every task has a `description`, which `mise tasks` shows. Beyond that,
   task files carry labels and at most a one-line why where a setting is not
   obvious; longer reasoning goes in the directory's guidance file.
@@ -155,7 +162,7 @@ Every repository offers:
 
 Where they apply: `dev`, `start` and `build` (often runtime entry points,
 which mise wraps under the boundary above), and `act`, which runs CI
-locally.
+locally under the exception above.
 
 - Sub-tasks are namespaced under their parent, `lint:md`, `format:toml`,
   and the parent depends on them, so mise runs them in parallel.
@@ -249,7 +256,9 @@ The skill directory holds, besides `SKILL.md`:
   `git diff --cached` pipelines in today's `.husky/pre-commit`. Its exact
   name and flags are the builder's, within that behaviour.
 - A starting `tasks.toml` holding the standard set and its `--staged`
-  wiring, with placeholders where a repository fills in its own tools.
+  wiring, with placeholders where a repository fills in its own tools. It
+  holds no `act`: that names a repository's own remote, which the skill
+  describes as a pattern without naming one.
 - Both pass the repository's linters, and the script has tests in
   `tests/`, as `agent-stewardship`'s scripts do. A test also fails when
   this repository's `scripts/` copy differs from the skill's bundled one
@@ -277,6 +286,7 @@ does not need.
   off hooks on branches that lack the move.
 - `.config/wt.toml`'s pre-start steps call `mise run` tasks;
   `bun run skills` becomes `mise run skills`.
+- `act` and `act-cached` keep their form, under the exception.
 - `.knip.jsonc` is updated for scripts moving out of `package.json`, which
   knip read to find used binaries and dependencies.
 - `README.md`'s skill table lists the new skill, and its Development
