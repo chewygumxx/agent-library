@@ -56,38 +56,9 @@ node = "24"
 # Tasks
 # ------
 
-[tasks.install]
-description = "Install the locked bun dependency tree"
-alias       = "i"
-run         = "bun ci"
+[task_config]
+includes = [ ".config/mise/tasks.toml" ]
 
-[tasks.lint]
-description = "Lint with Biome alone; `check` runs every check CI runs"
-alias       = "l"
-run         = "bun run lint"
-
-[tasks.check]
-description = "Run every check CI runs"
-alias       = "c"
-run         = "bun run check"
-
-[tasks.test]
-description = "Run the project's tests"
-alias       = "t"
-run         = "bun test"
-
-# Wrapper to refresh remote task data upon every execution.
-# https://github.com/chewygumxx/.github#readme
-[tasks.act]
-description = "Locally execute GitHub Actions (CI) with Docker"
-run         = "mise run --no-cache act-cached"
-alias       = [
-    "exec-ci",
-    "exec-gh-act",
-    "exec-gh-actions",
-]
-
-[tasks.act-cached]
-description = "[Internal] Locally execute GitHub Actions (CI) with Docker"
-file        = "git::https://github.com/chewygumxx/.github.git//tasks/act?ref=v1"
-hide        = true
+[vars]
+# git's index, a source of every --staged run. Its path differs per worktree.
+index = '{{ exec(command="git rev-parse --git-path index") }}'
