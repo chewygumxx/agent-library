@@ -23,8 +23,14 @@ const print = ["sh", "-c", 'printf "%s\\0" "$@"', "sh"];
 
 let repo: string;
 
+// Without git's own variables, which a hook running these tests inherits
+// and which would point git at the real repository.
+const env = Object.fromEntries(
+    Object.entries(process.env).filter(([name]) => !name.startsWith("GIT_")),
+);
+
 const git = (...args: string[]) => {
-    const run = Bun.spawnSync(["git", ...args], { cwd: repo });
+    const run = Bun.spawnSync(["git", ...args], { cwd: repo, env });
     if (run.exitCode !== 0) throw new Error(run.stderr.toString());
 };
 
@@ -35,7 +41,7 @@ const files = async (contents: Record<string, string>) => {
 };
 
 const withFiles = (...args: string[]) => {
-    const run = Bun.spawnSync(["sh", script, ...args], { cwd: repo });
+    const run = Bun.spawnSync(["sh", script, ...args], { cwd: repo, env });
     return {
         code: run.exitCode,
         files: run.stdout.toString().split("\0").slice(0, -1).sort(),

@@ -20,13 +20,19 @@ const emdash = "\u2014";
 
 let repo: string;
 
+// Without git's own variables, which a hook running these tests inherits
+// and which would point git at the real repository.
+const env = Object.fromEntries(
+    Object.entries(process.env).filter(([name]) => !name.startsWith("GIT_")),
+);
+
 const git = (...args: string[]) => {
-    const run = Bun.spawnSync(["git", ...args], { cwd: repo });
+    const run = Bun.spawnSync(["git", ...args], { cwd: repo, env });
     if (run.exitCode !== 0) throw new Error(run.stderr.toString());
 };
 
 const lint = (...args: string[]) =>
-    Bun.spawnSync(["sh", script, ...args], { cwd: repo }).exitCode;
+    Bun.spawnSync(["sh", script, ...args], { cwd: repo, env }).exitCode;
 
 beforeEach(async () => {
     repo = await mkdtemp(join(tmpdir(), "lint-emdash-"));
