@@ -89,6 +89,7 @@
             "CDPATH",
             "cgumxx",
             "fromdateiso",
+            "gpgsign",
             "Markor",
             "pathspec",
             "pathspecs",
