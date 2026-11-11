@@ -203,10 +203,14 @@ locally under the exception above.
 
 ### Skipping unchanged work
 
-- Each checking task declares `sources` (the files it checks and the
-  configuration governing them) and `outputs = { auto = true }`, so mise
-  skips it when nothing changed since it last passed. `mise run --force`
-  overrides.
+- Each checking task that reads particular files declares `sources` (the
+  files it checks and the configuration governing them) and
+  `outputs = { auto = true }`, so mise skips it when nothing changed since
+  it last passed. `mise run --force` overrides.
+- A check that cannot be narrowed to the files changed, such as the type
+  check, knip or the tests, declares no `sources` and runs on every run.
+  The user, 2026-11-11: checks that may be omitted without compromising
+  their validation are; only those that cannot be narrowed always run.
 - The rule: a skip never lets an unchecked file through, in a full run or
   a `--staged` one.
 - Probed on mise 2026.11.4: mise keeps a separate record per set of
