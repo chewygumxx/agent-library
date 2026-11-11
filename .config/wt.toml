@@ -17,7 +17,7 @@
 # node_modules copied in by `wt step copy-ignored` is reused, not fetched again.
 #
 
-# The toolchain in mise.toml: bun, and the linters pre-commit calls.
+# The toolchain in .config/mise/config.toml: bun, and the linters.
 [[pre-start]]
 tools = "mise install"
 
@@ -29,4 +29,4 @@ install = "mise run install"
 # Third-party skills, pinned by skills-lock.json. prepare syncs offline,
 # which restores none in a fresh checkout, so fetch them here.
 [[pre-start]]
-skills = "bun run skills"
+skills = "mise run skills"
