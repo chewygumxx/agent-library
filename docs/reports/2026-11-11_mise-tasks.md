@@ -161,3 +161,25 @@ variable, and the skill warns of it.
 - A new worktree from `wt switch --create`: not run. worktrunk asks the
   user to approve the changed pre-start command, `mise run skills`, and
   that approval is theirs to give.
+
+## Final review fixes
+
+The whole-branch review found the Task 4 check of a later-staged file had
+run only in a linked worktree, where git prints the index's path
+absolute. In an ordinary clone, a `[vars]` exec run from
+`.config/mise/` printed `../../.git/index`, which mise dropped, so the
+later staged run skipped. `/tmp/focus5-probe.sh` clones the branch, stages
+`good.toml`, runs `mise run lint:toml --staged`, commits, stages an
+invalid `bad.toml` and runs it again. Before the fix, then after:
+
+```text
+second --staged (bad.toml): SKIPPED rc=0
+second --staged (bad.toml): ran rc=123
+```
+
+The index is now asked for by an absolute path inside each task, so it
+runs for `--staged` alone; `mise env` and `mise tasks` work outside a git
+work tree, where the eager `[vars]` exec failed. Checks also watch the
+lockfile and tool pins. Every path `with-files.sh` gives starts `./`, so
+no tracked `-x` or `--version` reaches a tool as an option; Biome still
+ignores `./skills-lock.json`. `mise run --force check` passed after each.
