@@ -21,6 +21,7 @@ const root = join(import.meta.dir, "..");
 
 type Task = {
     name: string;
+    depends: string[];
     run: string[];
     tags: string[];
     sources: unknown;
@@ -31,9 +32,8 @@ type Task = {
 const listed = Bun.spawnSync(["mise", "tasks", "ls", "--json", "--no-global"], {
     cwd: root,
 });
-const tasks = (JSON.parse(listed.stdout.toString()) as Task[]).filter((task) =>
-    task.name.startsWith("test:"),
-);
+const all = JSON.parse(listed.stdout.toString()) as Task[];
+const tasks = all.filter((task) => task.name.startsWith("test:"));
 const runners = tasks.filter((task) => task.run.length > 0);
 
 const testFiles = [...new Bun.Glob("tests/**/*.test.mts").scanSync(root)];
@@ -96,5 +96,14 @@ describe("the test tasks", () => {
                 [],
             ]);
         }
+    });
+
+    // They map the tests, unlike a lint:<kind>, which its parent runs:
+    // `test` runs every test itself, and through them would run each twice.
+    it("are not run by `test`", () => {
+        const test = all.find((task) => task.name === "test");
+        expect(
+            test?.depends.filter((name) => name.startsWith("test:")),
+        ).toEqual([]);
     });
 });
