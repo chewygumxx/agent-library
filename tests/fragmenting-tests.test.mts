@@ -18,11 +18,18 @@ import { join } from "node:path";
 const root = join(import.meta.dir, "..");
 const skills = join(root, "skills");
 const assets = join(skills, "fragmenting-tests", "assets");
-const skill = (name: string) =>
-    readFileSync(join(skills, name, "SKILL.md"), "utf8");
+// A skill's file, its lines joined, as a sentence may wrap anywhere.
+const read = (name: string, file = "SKILL.md") =>
+    readFileSync(join(skills, name, file), "utf8").replace(/\s+/g, " ");
+const skill = (name: string) => read(name);
 
 // The sentence both skills hold, so neither lets `test` run the map.
 const notSubTasks = "`test` never depends on a `test:<subject>`";
+// What both skills tell a test that runs commands.
+const spawning = [
+    "Run what a test spawns from its temporary directory, outside every checkout, where a mise shim finds no config to refuse.",
+    "A test that runs git in a scratch repository drops every `GIT_*` variable from its environment, or it writes to the real repository's index and branch.",
+];
 
 type Task = {
     depends?: string[];
@@ -78,7 +85,7 @@ describe("fragmenting-tests", () => {
             /includes = \[("[^"]+")\]/,
         )?.[1];
         expect(theirs).toBe('".config/mise/tasks/*.task.toml"');
-        expect(skill("fragmenting-tests")).toContain(
+        expect(read("fragmenting-tests", "references/adopting.md")).toContain(
             `includes = [${theirs}, "tests/tasks.toml", "tests/*/tasks.toml"]`,
         );
     });
@@ -89,6 +96,25 @@ describe("fragmenting-tests", () => {
                 name,
                 true,
             ]);
+        }
+    });
+
+    it("and configuring-mise-tasks tell a test that runs commands alike", () => {
+        const texts = {
+            "configuring-mise-tasks": skill("configuring-mise-tasks"),
+            "fragmenting-tests": read(
+                "fragmenting-tests",
+                "references/splitting.md",
+            ),
+        };
+        for (const [name, text] of Object.entries(texts)) {
+            for (const sentence of spawning) {
+                expect([name, sentence, text.includes(sentence)]).toEqual([
+                    name,
+                    sentence,
+                    true,
+                ]);
+            }
         }
     });
 

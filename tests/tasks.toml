@@ -24,11 +24,12 @@ tags        = [
 run         = "bun test ./tests/configuring-mise-tasks.test.mts"
 
 ["test:fragmenting-tests"]
-description = "Test the fragmenting-tests skill's bundled guard and task template"
+description = "Test the fragmenting-tests skill's bundled files, and its agreement with configuring-mise-tasks"
 tags        = [
     "test",
     "covers:tests/test-tasks.test.mts",
-    "covers:skills/fragmenting-tests/assets",
+    "covers:skills/fragmenting-tests",
+    "covers:skills/configuring-mise-tasks/SKILL.md",
 ]
 run         = "bun test ./tests/fragmenting-tests.test.mts"
 
