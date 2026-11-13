@@ -73,7 +73,8 @@ Remove any other entry, and change its mentions from `bun run <name>` to
 
   Tasks that map single test files, `test:<subject>`, are the exception:
   they live beside the tests, in `tests/tasks.toml` and a test
-  directory's own `tasks.toml`, as the fragmenting-tests skill sets out.
+  directory's own `tasks.toml`, which the include's glob lists too, as
+  the fragmenting-tests skill sets out.
   The runtime's file is named for it, such as `bun.task.toml`, and holds
   `dev`, `start` and `build` and any task that runs one of its scripts,
   such as `eval` or `skills`. Each file opens with the house header
@@ -106,6 +107,9 @@ own entry points, and `act`, which runs CI locally.
 - Sub-tasks are named for their parent and their kind: `lint:md`,
   `format:toml`, `lint:types`. The parent depends on each, and mise runs
   them in parallel.
+- `test:<subject>` tasks, which map the tests a file at a time, are not
+  sub-tasks: `test` never depends on a `test:<subject>`, as it runs every
+  test itself and would then run each twice.
 - A format check is a lint: `lint:toml` checks formatting as well as
   linting, so `format` only ever writes.
 - Only the five parents take aliases.

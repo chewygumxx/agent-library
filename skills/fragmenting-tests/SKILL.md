@@ -97,18 +97,21 @@ is held in those fields alone.
 
 - Each test file is run by exactly one task. A single file's task is in
   `tests/tasks.toml`; a directory's are in its own `tasks.toml`, copied
-  from [`assets/tasks.toml`](assets/tasks.toml).
-- `.config/mise/config.toml` includes them by glob, beside the other
-  task files, so a new directory registers itself:
+  from [`assets/tasks.toml`](assets/tasks.toml) with its own path in its
+  header changed to match and each `<...>` replaced. Each file's header
+  says only what it holds; the reasoning goes in the guidance file.
+- `.config/mise/config.toml` includes them by glob, beside the task
+  files the configuring-mise-tasks skill lays out, one per family under
+  `.config/mise/tasks/`, so a new directory registers itself:
 
   ```toml
   [task_config]
-  includes = [".config/mise/tasks.toml", "tests/tasks.toml", "tests/*/tasks.toml"]
+  includes = [".config/mise/tasks/*.task.toml", "tests/tasks.toml", "tests/*/tasks.toml"]
   ```
 
-- The map lives beside the tests, not in a task family's file under
-  `.config/mise/`: a test directory carries its own. The standard `test`
-  stays where the rest of the standard set is.
+- The map lives beside the tests, not in a family's file under
+  `.config/mise/tasks/`: a test directory carries its own. `test` itself
+  stays with `install` and `check`, in `standard.task.toml`.
 - A task is named `test:<subject>`, or `test:<subject>:<part>` in a
   directory, which also has a `test:<subject>` with
   `depends = [ "test:<subject>:*" ]` and nothing more.
@@ -127,6 +130,9 @@ is held in those fields alone.
 - `test` itself still runs every test in one runner process, as
   `bun test`, which finds them by name and so never leaves one out. The
   tasks are the map, and a way to run one file or one directory.
+- They are not sub-tasks, as `lint:<kind>` is of `lint`, though named
+  alike: `test` never depends on a `test:<subject>`, as it would then run
+  each test twice.
 
 An agent then asks:
 
@@ -146,12 +152,13 @@ it in `tests/tasks.toml` like any other. It reads
 - a task that runs anything but one test file;
 - a task without `test`, or without any `covers:`;
 - a `covers:` path that does not exist;
-- a test task with `sources` or `outputs`.
+- a test task with `sources` or `outputs`;
+- a `test` that depends on any `test:` task.
 
-It is written for Bun and `tests/**/*.test.mts`; port its five checks for
+It is written for Bun and `tests/**/*.test.mts`; port its six checks for
 another runner. Prove it bites before relying on it: point one `covers:`
-at a missing path, drop one task, add `sources` to one, and see each fail
-the check meant for it.
+at a missing path, drop one task, add `sources` to one, make `test`
+depend on one, and see each fail the check meant for it.
 
 ## Documenting
 

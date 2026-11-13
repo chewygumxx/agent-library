@@ -16,7 +16,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
-const assets = join(root, "skills", "fragmenting-tests", "assets");
+const skills = join(root, "skills");
+const assets = join(skills, "fragmenting-tests", "assets");
+const skill = (name: string) =>
+    readFileSync(join(skills, name, "SKILL.md"), "utf8");
+
+// The sentence both skills hold, so neither lets `test` run the map.
+const notSubTasks = "`test` never depends on a `test:<subject>`";
 
 type Task = {
     depends?: string[];
@@ -45,6 +51,45 @@ describe("fragmenting-tests", () => {
             (file) => /[._](test|spec)[._]/.test(file),
         );
         expect(marked).toEqual([]);
+    });
+
+    it("its template's header says only how it is copied, as configuring-mise-tasks' do", () => {
+        // The header's prose: before the first task, after the lines every
+        // file opens with.
+        const header = readFileSync(join(assets, "tasks.toml"), "utf8").split(
+            "\n[",
+        )[0];
+        const prose = (header ?? "")
+            .split("\n")
+            .filter((line) => /^# /.test(line))
+            .filter(
+                (line) => !/vim:|SPDX-License-Identifier|::: :\/|~/.test(line),
+            )
+            .map((line) => line.slice(2))
+            .join(" ");
+        expect(prose).toBe(
+            "Copied to tests/<subject>/tasks.toml, its own path above " +
+                "changed to match. Replace each <...>.",
+        );
+    });
+
+    it("includes the map beside configuring-mise-tasks' task files", () => {
+        const theirs = skill("configuring-mise-tasks").match(
+            /includes = \[("[^"]+")\]/,
+        )?.[1];
+        expect(theirs).toBe('".config/mise/tasks/*.task.toml"');
+        expect(skill("fragmenting-tests")).toContain(
+            `includes = [${theirs}, "tests/tasks.toml", "tests/*/tasks.toml"]`,
+        );
+    });
+
+    it("and configuring-mise-tasks both keep `test` from running the map", () => {
+        for (const name of ["fragmenting-tests", "configuring-mise-tasks"]) {
+            expect([name, skill(name).includes(notSubTasks)]).toEqual([
+                name,
+                true,
+            ]);
+        }
     });
 
     it("its template maps a directory as the guard requires", () => {
