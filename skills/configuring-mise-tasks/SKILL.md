@@ -71,6 +71,9 @@ Remove any other entry, and change its mentions from `bun run <name>` to
   | `<runtime>.task.toml` | Those wrapping the runtime                  |
   | `other.task.toml`     | Every other task, such as `commit` or `act` |
 
+  Tasks that map single test files, `test:<subject>`, are the exception:
+  they live beside the tests, in `tests/tasks.toml` and a test
+  directory's own `tasks.toml`, as the fragmenting-tests skill sets out.
   The runtime's file is named for it, such as `bun.task.toml`, and holds
   `dev`, `start` and `build` and any task that runs one of its scripts,
   such as `eval` or `skills`. Each file opens with the house header
@@ -197,8 +200,12 @@ themselves, so a new checkout needs nothing by hand. Never run
 `mise trust` on the user's behalf.
 
 A test that replaces `HOME` hides the user's trust from a mise shim on
-`PATH`. Give its environment `MISE_TRUSTED_CONFIG_PATHS` set to the
-repository root.
+`PATH`, which reads the config of every directory above the one it runs
+in and refuses any untrusted. Naming the repository root in
+`MISE_TRUSTED_CONFIG_PATHS` is not enough: a worktree nested within the
+main checkout has the checkout's config above it too. Run what the test
+spawns from its temporary directory, outside every checkout, where mise
+finds no config at all.
 
 ## Remote tasks
 
