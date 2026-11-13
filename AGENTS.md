@@ -24,7 +24,10 @@ context, include such within the commit message body.
 - `tests/` holds one `<subject>.test.mts` per subject. One grown too long
   to read whole becomes a directory, `<subject>/`, of a `<part>.test.mts`
   for each part and the infrastructure they share: Bun runs only the
-  files whose own name holds `.test.`.
+  files whose own name holds `.test.`. Each test file has a mise task, in
+  `tests/tasks.toml` or its directory's own `tasks.toml`, whose `covers:`
+  tags name what it runs: `mise tasks ls --tag covers:<path>` finds the
+  tests of a path.
 - `.agents/skills/` and `.claude/skills/*` contain the skills this repository
   sources by symlink. Synced by [`skills`](https://github.com/vercel-labs/skills),
   as specified by `skills-lock.json`.
