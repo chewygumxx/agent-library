@@ -13,21 +13,28 @@
 // and a check watches the lockfile and tool pins that govern it.
 
 import { describe, expect, it } from "bun:test";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
 
 type Task = { usage?: string; sources?: string[] };
 
+const templates = join(
+    root,
+    "skills",
+    "configuring-mise-tasks",
+    "assets",
+    "tasks",
+);
+
 const files = {
     "this repository": join(root, ".config", "mise", "tasks.toml"),
-    "the template": join(
-        root,
-        "skills",
-        "configuring-mise-tasks",
-        "assets",
-        "tasks.toml",
+    ...Object.fromEntries(
+        readdirSync(templates).map((file) => [
+            `the template's ${file}`,
+            join(templates, file),
+        ]),
     ),
 };
 

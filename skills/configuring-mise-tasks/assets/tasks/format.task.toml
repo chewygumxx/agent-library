@@ -1,0 +1,27 @@
+# vim:set expandtab shiftwidth=4 filetype=toml:
+# SPDX-License-Identifier: GPL-3.0-only
+#:schema https://mise.jdx.dev/schema/mise-task.json
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/skills/configuring-mise-tasks/assets/tasks/format.task.toml
+#
+#
+
+#
+# Copied to .config/mise/tasks/format.task.toml, its own path above
+# changed to match. Replace each <...>, and repeat format:<kind> once per
+# kind of file.
+#
+
+[format]
+description = "Apply every formatter"
+alias       = "f"
+usage       = 'flag "--staged" help="Format staged files alone"'
+depends     = [ "format:<kind> {% if usage.staged %}--staged{% endif %}" ]
+
+["format:<kind>"]
+description = "Format <kind> files with <formatter>"
+usage       = 'flag "--staged"'
+run         = "scripts/with-files.sh ${usage_staged:+--staged} '*.<ext>' -- <formatter, writing>"

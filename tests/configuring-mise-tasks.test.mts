@@ -9,10 +9,11 @@
 //
 
 // The configuring-mise-tasks skill's bundled files: its script stays the one
-// this repository runs, and its template keeps the standard task set.
+// this repository runs, and its template keeps the standard task set, one
+// file per task family.
 
 import { describe, expect, it } from "bun:test";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
@@ -25,10 +26,30 @@ type Task = {
     depends?: string[];
 };
 
+const templates = join(skill, "assets", "tasks");
+
+const parse = (file: string) =>
+    Bun.TOML.parse(readFileSync(join(templates, file), "utf8")) as Record<
+        string,
+        Task
+    >;
+
+// Every template file's tasks, as mise merges them through the include.
 const template = () =>
-    Bun.TOML.parse(
-        readFileSync(join(skill, "assets", "tasks.toml"), "utf8"),
+    Object.assign(
+        {},
+        ...readdirSync(templates)
+            .sort()
+            .map((file) => parse(file)),
     ) as Record<string, Task>;
+
+// The tasks each family's file may hold.
+const families: Record<string, (name: string) => boolean> = {
+    "standard.task.toml": (name) => ["install", "test", "check"].includes(name),
+    "lint.task.toml": (name) => name === "lint" || name.startsWith("lint:"),
+    "format.task.toml": (name) =>
+        name === "format" || name.startsWith("format:"),
+};
 
 // A file without its breadcrumb, the one line that names its own path.
 const body = (path: string) =>
@@ -42,6 +63,26 @@ describe("configuring-mise-tasks", () => {
         expect(body(join(skill, "scripts", "with-files.sh"))).toBe(
             body(join(root, "scripts", "with-files.sh")),
         );
+    });
+
+    it("its template is one file per family", () => {
+        expect(readdirSync(templates).sort()).toEqual(
+            Object.keys(families).sort(),
+        );
+        for (const [file, holds] of Object.entries(families)) {
+            for (const name of Object.keys(parse(file))) {
+                expect([file, name, holds(name)]).toEqual([file, name, true]);
+            }
+        }
+    });
+
+    it("its template files each name their own path", () => {
+        for (const file of readdirSync(templates)) {
+            const path = `skills/configuring-mise-tasks/assets/tasks/${file}`;
+            const text = readFileSync(join(templates, file), "utf8");
+            expect(text).toContain(`# ::: :/${path}\n`);
+            expect(text).toContain(`.config/mise/tasks/${file}`);
+        }
     });
 
     it("its template defines the standard set", () => {

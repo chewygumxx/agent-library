@@ -5,23 +5,15 @@
 #
 #
 # ~chewygumxx/agent-library.git
-# ::: :/skills/configuring-mise-tasks/assets/tasks.toml
+# ::: :/skills/configuring-mise-tasks/assets/tasks/lint.task.toml
 #
 #
 
 #
-# Starting tasks, copied to .config/mise/tasks.toml. Replace each <...>,
-# and repeat lint:<kind> and format:<kind> once per kind of file.
+# Copied to .config/mise/tasks/lint.task.toml, its own path above
+# changed to match. Replace each <...>, and repeat lint:<kind> once per
+# kind of file.
 #
-
-# ---------
-# Standard
-# ---------
-
-[install]
-description = "Install the locked dependency tree"
-alias       = "i"
-run         = "<locked install, such as bun ci>"
 
 [lint]
 description = "Run every linter and format check"
@@ -31,23 +23,6 @@ depends     = [
     "lint:<kind> {% if usage.staged %}--staged{% endif %}",
     "lint:types",
 ]
-
-[format]
-description = "Apply every formatter"
-alias       = "f"
-usage       = 'flag "--staged" help="Format staged files alone"'
-depends     = [ "format:<kind> {% if usage.staged %}--staged{% endif %}" ]
-
-[test]
-description = "Run the tests"
-alias       = "t"
-run         = "<test command>"
-
-[check]
-description = "Run everything CI runs: lint and test"
-alias       = "c"
-usage       = 'flag "--staged" help="Lint staged files alone; test in full"'
-depends     = [ "lint {% if usage.staged %}--staged{% endif %}", "test" ]
 
 # --------------------
 # Lint: file by file
@@ -72,12 +47,3 @@ run         = "<type checker>"
 description = "Lint a commit message file with <commit linter>"
 usage       = 'arg "<file>" help="The commit message file"'
 run         = '<commit linter> "$usage_file"'
-
-# -------
-# Format
-# -------
-
-["format:<kind>"]
-description = "Format <kind> files with <formatter>"
-usage       = 'flag "--staged"'
-run         = "scripts/with-files.sh ${usage_staged:+--staged} '*.<ext>' -- <formatter, writing>"

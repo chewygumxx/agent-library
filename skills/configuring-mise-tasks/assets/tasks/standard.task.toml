@@ -1,0 +1,31 @@
+# vim:set expandtab shiftwidth=4 filetype=toml:
+# SPDX-License-Identifier: GPL-3.0-only
+#:schema https://mise.jdx.dev/schema/mise-task.json
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/skills/configuring-mise-tasks/assets/tasks/standard.task.toml
+#
+#
+
+#
+# Copied to .config/mise/tasks/standard.task.toml, its own path above
+# changed to match. Replace each <...>.
+#
+
+[install]
+description = "Install the locked dependency tree"
+alias       = "i"
+run         = "<locked install, such as bun ci>"
+
+[test]
+description = "Run the tests"
+alias       = "t"
+run         = "<test command>"
+
+[check]
+description = "Run everything CI runs: lint and test"
+alias       = "c"
+usage       = 'flag "--staged" help="Lint staged files alone; test in full"'
+depends     = [ "lint {% if usage.staged %}--staged{% endif %}", "test" ]

@@ -96,9 +96,11 @@ own entry points, and `act`, which runs CI locally.
 - A task outside the set takes a name that cannot be mistaken for one in
   it, such as `commit` or `skills`.
 
-To adopt the set, copy [`assets/tasks.toml`](assets/tasks.toml) to
-`.config/mise/tasks.toml` and fill in its placeholders, and
-[`scripts/with-files.sh`](scripts/with-files.sh) to `scripts/`.
+To adopt the set, copy the three files in [`assets/tasks/`](assets/tasks/)
+to `.config/mise/tasks/`, point each header at its new path and fill in
+the placeholders, and copy [`scripts/with-files.sh`](scripts/with-files.sh)
+to `scripts/`. A repository with a single `.config/mise/tasks.toml` moves
+each task into its family's file and changes the include to the glob.
 
 ## The `--staged` switch
 
