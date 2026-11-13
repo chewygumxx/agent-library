@@ -15,9 +15,10 @@ description: How the tests are laid out, mapped and kept whole
 ## Layout
 
 - A subject's tests live in one `<subject>.test.mts`.
-- A file grown too long to read whole becomes a directory, `<subject>/`:
-  a `<part>.test.mts` for each part, and beside them the infrastructure
-  they share, such as `tests/agent-stewardship/`'s `harness.mts`, its
+- A file past 20 KiB, or holding several subjects' tests, becomes a
+  directory, `<subject>/`: a `<part>.test.mts` for each part, one script
+  or module with every `describe` about it, and beside them what they
+  share, such as `tests/agent-stewardship/`'s `harness.mts`, its
   stand-ins and their `tasks.toml`.
 - Bun runs a file only if its own name holds `.test.`; a directory's name
   counts for nothing. So name every test file `*.test.mts`, and name no
@@ -63,11 +64,26 @@ here.
 `mise tasks ls --tag covers:<path>` lists the tests of a path, and
 `mise tasks deps test:<subject>` draws a directory's tasks as a tree.
 
+## Changing a Test File
+
+- Adding one: give it its task.
+- Moving or renaming one: change its task's name and `run` to match.
+- Deleting one: delete its task, and a directory's `test:<subject>` with
+  its last.
+- Making a script under test source or call another, or stop: list its
+  tests with `mise tasks ls --tag covers:<script>` and change their
+  `covers:` to match. Nothing finds a missing one.
+- Growing one past 20 KiB: split it into a directory. Commit the split
+  with its tasks, as the guard fails a file without a task, and a task
+  without its file.
+
+## The Guard
+
 `test-tasks.test.mts` checks the map against `mise tasks ls --json`, and
-fails a test file with no task, or two; a task that runs anything but
-one test file; a task without `test` or any `covers:`; a `covers:` path
-that does not exist; a test task with `sources` or `outputs`; and a
-`test` that depends on any `test:` task.
+fails a test file past 20 KiB; a test file with no task, or two; a task
+that runs anything but one test file; a task without `test` or any
+`covers:`; a `covers:` path that does not exist; a test task with
+`sources` or `outputs`; and a `test` that depends on any `test:` task.
 
 ## Directory Infrastructure
 
