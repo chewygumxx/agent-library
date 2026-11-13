@@ -11,11 +11,13 @@
 // https://knip.dev/reference/configuration
 //
 // knip finds the entry files by itself; this file lists only what it cannot
-// see. Each pattern is a regular expression.
+// see. Files are globs; dependencies and binaries, regular expressions.
 {
     "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
     // `bun test` finds these by name, which knip does not follow.
     "entry": ["tests/**/*.test.mts"],
+    // A skill's assets are copied out to other repositories, never run here.
+    "ignore": ["skills/*/assets/**"],
     "ignoreDependencies": [
         // The shared configurations, named by path in the mise tasks,
         // by `extends` or `import`, or from `.secretlintrc.json`.
