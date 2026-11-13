@@ -10,9 +10,7 @@
 #
 
 #
-# A task per test file of the agent-stewardship skill's scripts, as
-# tests/tasks.toml lays out. Each runs against the stand-ins in bin/ and
-# stand-ins/, through harness.mts.
+# The map of the agent-stewardship tests: see tests/AGENTS.md.
 #
 
 ["test:agent-stewardship"]

@@ -53,7 +53,12 @@ keeps only the fields below.
 
 `mise run test` does not use these tasks: it runs every test in one
 `bun test`, which finds them by name, so none is ever left out. The tasks
-are the map, and a way to run one file, or one directory's.
+are the map, and a way to run one file, or one directory's. Named like
+`lint:<kind>`, they are not sub-tasks: `test` never depends on a
+`test:<subject>`, as it would then run each test twice.
+
+A task file's header says only what the file holds. The reasoning is
+here.
 
 `mise tasks ls --tag covers:<path>` lists the tests of a path, and
 `mise tasks deps test:<subject>` draws a directory's tasks as a tree.
@@ -61,7 +66,8 @@ are the map, and a way to run one file, or one directory's.
 `test-tasks.test.mts` checks the map against `mise tasks ls --json`, and
 fails a test file with no task, or two; a task that runs anything but
 one test file; a task without `test` or any `covers:`; a `covers:` path
-that does not exist; and a test task with `sources` or `outputs`.
+that does not exist; a test task with `sources` or `outputs`; and a
+`test` that depends on any `test:` task.
 
 ## Directory Infrastructure
 

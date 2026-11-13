@@ -10,14 +10,7 @@
 #
 
 #
-# A task per test file, a map for `mise tasks` and `mise mcp` alike: `run`
-# names the file, and each `covers:` tag a path that the file runs, or
-# reads, directly or through what that path sources or calls. A directory
-# of tests keeps its own tasks.toml. `mise run test` runs them all at once;
-# tests/test-tasks.test.mts keeps the map whole.
-#
-# These declare no `sources`, under which mise would skip a test when the
-# files it names are unchanged: the tests always run.
+# The map of the tests, a task per test file: see tests/AGENTS.md.
 #
 
 ["test:configuring-mise-tasks"]

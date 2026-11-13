@@ -10,11 +10,8 @@
 #
 
 #
-# Copied to tests/<subject>/tasks.toml, a task per test file of the
-# directory. `run` names the file; each `covers:` tag names a path the
-# file runs or reads, directly or through what that path sources or
-# calls. No `sources`, under which mise would skip a test: the tests
-# always run.
+# Copied to tests/<subject>/tasks.toml, its own path above changed to
+# match. Replace each <...>.
 #
 
 ["test:<subject>"]
