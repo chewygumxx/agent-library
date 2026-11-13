@@ -62,6 +62,18 @@ describe.each(skills)("%s", (skill) => {
         }
     });
 
+    it("links each of its references from its SKILL.md", () => {
+        const references = join(root, skill, "references");
+        if (!existsSync(references)) return;
+        const linked = linkTargets(join(root, skill, "SKILL.md")).map(
+            (target) => resolve(root, skill, target),
+        );
+        for (const file of readdirSync(references)) {
+            const path = join(references, file);
+            expect([file, linked.includes(path)]).toEqual([file, true]);
+        }
+    });
+
     it("names nothing of the project it came from", () => {
         for (const file of files(skill)) {
             const hits = readFileSync(file, "utf8").match(imported);
