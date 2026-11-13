@@ -16,16 +16,16 @@ license: GPL-3.0-only
 
 # Configuring mise tasks
 
-Every repository offers the same tasks under the same names, written the
+Repositories offer the same tasks under the same names, written the
 same way, so `mise run check` means one thing everywhere. Here is where an
 action is defined, how tasks are written and named, how a task narrows to
 staged files, and how hooks reach it.
 
 ## mise or the runtime
 
-mise is the interface for development. It cannot be relied on wherever
-the project runs beyond the developer's own machine, such as an end
-user's install. The project's runtime tool (Bun, uv, cargo and the like)
+`mise` is the primary interface for development. It cannot be relied on
+wherever the project runs beyond the developer's own machine or CI, such as
+an end user's install. The project's runtime tool (Bun, uv, cargo and the like)
 is what is there everywhere.
 
 - An action that must run without mise is defined in the runtime's
@@ -39,9 +39,9 @@ is what is there everywhere.
 
 The manifest's scripts (`package.json`'s, for Bun) hold only:
 
-1. lifecycle scripts, such as `prepare`;
-2. runtime entry points, such as `dev` or `start`;
-3. names something outside the repository calls, such as a shared CI
+1. Lifecycle scripts, such as `prepare`;
+2. Runtime entry points, such as `dev` or `start`;
+3. Names something outside the repository calls, such as a shared CI
    workflow's `bun run check`. Where that caller has mise, the entry is
    `"check": "mise run check"`.
 
@@ -50,19 +50,36 @@ Remove any other entry, and change its mentions from `bun run <name>` to
 
 ## Where tasks live
 
-- `.config/mise/config.toml` holds the tools, and includes the tasks:
+- `.config/mise/config.toml` includes the tasks with:
 
   ```toml
   [task_config]
-  includes = [".config/mise/tasks.toml"]
+  includes = [".config/mise/tasks/*.task.toml"]
   ```
 
-  The include path is from the repository root.
+  The include path is relative to the repository root. mise 2026.11.6
+  takes a glob there.
 
-- `.config/mise/tasks.toml` holds every task, as TOML. A task's `run` is
-  one line, or a short list of one-line commands. Anything longer is a
-  script in `scripts/`, which runs without mise. No file tasks with
-  `#MISE` comments.
+- `.config/mise/tasks/` holds every task, as TOML, one file per task
+  family, so a task is found by the first part of its name:
+
+  | File                  | Tasks                                       |
+  | --------------------- | ------------------------------------------- |
+  | `standard.task.toml`  | `install`, `test`, `check`                  |
+  | `lint.task.toml`      | `lint` and every `lint:*`                   |
+  | `format.task.toml`    | `format` and every `format:*`               |
+  | `<runtime>.task.toml` | Those wrapping the runtime                  |
+  | `other.task.toml`     | Every other task, such as `commit` or `act` |
+
+  The runtime's file is named for it, such as `bun.task.toml`, and holds
+  `dev`, `start` and `build` and any task that runs one of its scripts,
+  such as `eval` or `skills`. Each file opens with the house header
+  naming its own path, as the [templates](assets/tasks/) do. Leave out a
+  file with no tasks.
+
+- A task's `run` is one line, or a short list of one-line commands.
+  Anything longer is a script in `scripts/`, which runs without mise. No
+  file tasks with `#MISE` comments.
 - Every task has a `description`, which `mise tasks` shows. Otherwise a
   task file carries labels, and at most a one-line why where a setting is
   not obvious. Longer reasoning goes in the directory's guidance file.
@@ -72,13 +89,13 @@ Remove any other entry, and change its mentions from `bun run <name>` to
 
 ## The standard set
 
-| Task      | Alias | Runs                                    | Writes |
-| --------- | ----- | --------------------------------------- | ------ |
-| `install` | `i`   | The locked dependency install           | yes    |
-| `lint`    | `l`   | Every linter and format check           | no     |
-| `format`  | `f`   | Every formatter                         | yes    |
-| `test`    | `t`   | The tests                               | no     |
-| `check`   | `c`   | Everything CI runs: `lint` and `test`   | no     |
+| Task      | Alias | Runs                                  | Writes |
+| --------- | ----- | ------------------------------------- | ------ |
+| `install` | `i`   | The locked dependency install         | yes    |
+| `lint`    | `l`   | Every linter and format check         | no     |
+| `format`  | `f`   | Every formatter                       | yes    |
+| `test`    | `t`   | The tests                             | no     |
+| `check`   | `c`   | Everything CI runs: `lint` and `test` | no     |
 
 Where they apply, `dev`, `start` and `build` too, wrapping the runtime's
 own entry points, and `act`, which runs CI locally.
@@ -188,7 +205,7 @@ repository root.
 One exception to TOML-only tasks: `act`, and any CI task that depends on
 a remote script referenced by a tag and fetched uncached. Such a task is
 a hidden remote file task, run by a visible wrapper that fetches it
-afresh each time:
+afresh each time, both in `other.task.toml`:
 
 ```toml
 [act]
