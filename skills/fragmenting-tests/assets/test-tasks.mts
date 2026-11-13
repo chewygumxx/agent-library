@@ -14,7 +14,7 @@
 // map the tests; `mise run test` still runs them all in one `bun test`.
 
 import { describe, expect, it } from "bun:test";
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
@@ -42,6 +42,18 @@ const covered = (task: Task) =>
     task.tags
         .filter((tag) => tag.startsWith("covers:"))
         .map((tag) => tag.slice("covers:".length));
+
+// A test file past this is split into a directory of a file per part.
+const maxBytes = 20 * 1024;
+
+describe("the test files", () => {
+    it("are each 20 KiB at most", () => {
+        for (const file of testFiles) {
+            const bytes = statSync(join(root, file)).size;
+            expect([file, bytes <= maxBytes]).toEqual([file, true]);
+        }
+    });
+});
 
 describe("the test tasks", () => {
     it("are listed by mise", () => {
