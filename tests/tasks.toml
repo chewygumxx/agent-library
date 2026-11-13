@@ -1,0 +1,66 @@
+# vim:set expandtab shiftwidth=4 filetype=toml:
+# SPDX-License-Identifier: GPL-3.0-only
+#:schema https://mise.jdx.dev/schema/mise-task.json
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/tests/tasks.toml
+#
+#
+
+#
+# A task per test file, a map for `mise tasks` and `mise mcp` alike: `run`
+# names the file, and each `covers:` tag a path that the file runs, or
+# reads, directly or through what that path sources or calls. A directory
+# of tests keeps its own tasks.toml. `mise run test` runs them all at once;
+# tests/test-tasks.test.mts keeps the map whole.
+#
+# These declare no `sources`, under which mise would skip a test when the
+# files it names are unchanged: the tests always run.
+#
+
+["test:configuring-mise-tasks"]
+description = "Test the configuring-mise-tasks skill's bundled script and task template"
+tags        = [
+    "test",
+    "covers:scripts/with-files.sh",
+    "covers:skills/configuring-mise-tasks/scripts/with-files.sh",
+    "covers:skills/configuring-mise-tasks/assets/tasks",
+]
+run         = "bun test ./tests/configuring-mise-tasks.test.mts"
+
+["test:lint-emdash"]
+description = "Test lint-emdash.sh in a throwaway git repository"
+tags        = [ "test", "covers:scripts/lint-emdash.sh" ]
+run         = "bun test ./tests/lint-emdash.test.mts"
+
+["test:mise-tasks"]
+description = "Test that the mise tasks, here and in the skill's template, skip honestly"
+tags        = [
+    "test",
+    "covers:.config/mise/tasks.toml",
+    "covers:skills/configuring-mise-tasks/assets/tasks",
+    "covers:skills/configuring-mise-tasks/SKILL.md",
+]
+run         = "bun test ./tests/mise-tasks.test.mts"
+
+["test:skills"]
+description = "Test that every skill stands alone once copied out of this repository"
+tags        = [ "test", "covers:skills" ]
+run         = "bun test ./tests/skills.test.mts"
+
+["test:test-tasks"]
+description = "Test that the test tasks map every test file and what it covers"
+tags        = [
+    "test",
+    "covers:.config/mise/config.toml",
+    "covers:tests/tasks.toml",
+    "covers:tests/agent-stewardship/tasks.toml",
+]
+run         = "bun test ./tests/test-tasks.test.mts"
+
+["test:with-files"]
+description = "Test with-files.sh in a throwaway git repository"
+tags        = [ "test", "covers:scripts/with-files.sh" ]
+run         = "bun test ./tests/with-files.test.mts"

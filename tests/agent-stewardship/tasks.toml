@@ -1,0 +1,91 @@
+# vim:set expandtab shiftwidth=4 filetype=toml:
+# SPDX-License-Identifier: GPL-3.0-only
+#:schema https://mise.jdx.dev/schema/mise-task.json
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/tests/agent-stewardship/tasks.toml
+#
+#
+
+#
+# A task per test file of the agent-stewardship skill's scripts, as
+# tests/tasks.toml lays out. Each runs against the stand-ins in bin/ and
+# stand-ins/, through harness.mts.
+#
+
+["test:agent-stewardship"]
+description = "Test the agent-stewardship skill's scripts"
+depends     = [ "test:agent-stewardship:*" ]
+
+["test:agent-stewardship:agent-name"]
+description = "Test agent-name.sh: your own agent's name"
+tags        = [
+    "test",
+    "covers:skills/agent-stewardship/scripts/agent-name.sh",
+    "covers:skills/agent-stewardship/scripts/pane-lock.sh",
+]
+run         = "bun test ./tests/agent-stewardship/agent-name.test.mts"
+
+["test:agent-stewardship:at-limit"]
+description = "Test at-limit.sh: running a command again while it is at its usage limit"
+tags        = [
+    "test",
+    "covers:skills/agent-stewardship/scripts/at-limit.sh",
+]
+run         = "bun test ./tests/agent-stewardship/at-limit.test.mts"
+
+["test:agent-stewardship:compact-self"]
+description = "Test compact-self.sh: typing /compact and its instructions into your own pane"
+tags        = [
+    "test",
+    "covers:skills/agent-stewardship/scripts/compact-self.sh",
+    "covers:skills/agent-stewardship/scripts/pane-lock.sh",
+    "covers:skills/agent-stewardship/scripts/send-prompt.sh",
+]
+run         = "bun test ./tests/agent-stewardship/compact-self.test.mts"
+
+["test:agent-stewardship:job"]
+description = "Test job.sh: submitting a command as a transient user unit"
+tags        = [
+    "test",
+    "covers:skills/agent-stewardship/scripts/job.sh",
+    "covers:skills/agent-stewardship/scripts/pane-lock.sh",
+]
+run         = "bun test ./tests/agent-stewardship/job.test.mts"
+
+["test:agent-stewardship:job-stopped"]
+description = "Test job-stopped.sh: recording a stopped job and telling its agent"
+tags        = [
+    "test",
+    "covers:skills/agent-stewardship/scripts/job-stopped.sh",
+    "covers:skills/agent-stewardship/scripts/pane-lock.sh",
+    "covers:skills/agent-stewardship/scripts/send-prompt.sh",
+]
+run         = "bun test ./tests/agent-stewardship/job-stopped.test.mts"
+
+["test:agent-stewardship:send-prompt"]
+description = "Test send-prompt.sh: sending now, on a timer, on delivery, and outside herdr"
+tags        = [
+    "test",
+    "covers:skills/agent-stewardship/scripts/send-prompt.sh",
+    "covers:skills/agent-stewardship/scripts/pane-lock.sh",
+]
+run         = "bun test ./tests/agent-stewardship/send-prompt.test.mts"
+
+["test:agent-stewardship:statusline"]
+description = "Test statusline.sh: drawing the status line and keeping the usage"
+tags        = [
+    "test",
+    "covers:skills/agent-stewardship/scripts/statusline.sh",
+]
+run         = "bun test ./tests/agent-stewardship/statusline.test.mts"
+
+["test:agent-stewardship:with-claude"]
+description = "Test with-claude.sh: choosing a Claude account by its usage"
+tags        = [
+    "test",
+    "covers:skills/agent-stewardship/scripts/with-claude.sh",
+]
+run         = "bun test ./tests/agent-stewardship/with-claude.test.mts"
