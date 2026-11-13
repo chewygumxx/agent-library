@@ -107,9 +107,10 @@ own entry points, and `act`, which runs CI locally.
 - Sub-tasks are named for their parent and their kind: `lint:md`,
   `format:toml`, `lint:types`. The parent depends on each, and mise runs
   them in parallel.
-- `test:<subject>` tasks, which map the tests a file at a time, are not
-  sub-tasks: `test` never depends on a `test:<subject>`, as it runs every
-  test itself and would then run each twice.
+- `test:<subject>` tasks, each running one test file to record what it
+  covers for `mise tasks` and `mise mcp`, are not sub-tasks: `test` never
+  depends on a `test:<subject>`, as it runs every test itself and would
+  then run each twice.
 - A format check is a lint: `lint:toml` checks formatting as well as
   linting, so `format` only ever writes.
 - Only the five parents take aliases.
@@ -157,11 +158,9 @@ then skips it when nothing changed since it last passed.
 
 - mise keeps a record per set of arguments, so a `--staged` pass never
   lets a full run skip.
-- A `--staged` run also takes git's index as a source, so a later staged
-  run never skips a file staged since. Ask git for an absolute path: mise
-  runs the template from `.config/mise/`, where a relative one points
-  outside the repository and is silently dropped. Keep it inside the
-  task, where it runs for `--staged` alone, as it fails outside git:
+- A `--staged` run also takes git's index as a source, by its absolute
+  path, inside the task. [Staged runs](./references/staged-runs.md) says
+  why each is so:
 
   ```toml
   sources = [
@@ -193,8 +192,8 @@ it, such as husky's `~/.config/husky/init.sh`.
 
 As `check` runs the tests, the pre-commit hook runs them with git's own
 variables set, such as `GIT_INDEX_FILE`. A test that runs git in a
-scratch repository must drop every `GIT_*` variable from its environment,
-or it writes to the real repository's index and branch.
+scratch repository drops every `GIT_*` variable from its environment, or
+it writes to the real repository's index and branch.
 
 ## Trust
 
@@ -204,29 +203,15 @@ themselves, so a new checkout needs nothing by hand. Never run
 `mise trust` on the user's behalf.
 
 A test that replaces `HOME` hides the user's trust from a mise shim on
-`PATH`, which reads the config of every directory above the one it runs
-in and refuses any untrusted. Naming the repository root in
-`MISE_TRUSTED_CONFIG_PATHS` is not enough: a worktree nested within the
-main checkout has the checkout's config above it too. Run what the test
-spawns from its temporary directory, outside every checkout, where mise
-finds no config at all.
+`PATH`, which refuses any untrusted config above it, such as the main
+checkout's above a worktree nested within it. Run what a test spawns
+from its temporary directory, outside every checkout, where a mise shim
+finds no config to refuse.
 
 ## Remote tasks
 
-One exception to TOML-only tasks: `act`, and any CI task that depends on
-a remote script referenced by a tag and fetched uncached. Such a task is
-a hidden remote file task, run by a visible wrapper that fetches it
-afresh each time, both in `other.task.toml`:
+`act`, and any CI task that depends on a remote script, are the one
+exception to TOML-only tasks. Read [Remote tasks](./references/remote-tasks.md)
+before adding one.
 
-```toml
-[act]
-description = "Run CI locally"
-run         = "mise run --no-cache act-cached"
-
-[act-cached]
-description = "[Internal] Run CI locally"
-file        = "git::https://<host>/<owner>/<repo>.git//<path>?ref=<tag>"
-hide        = true
-```
-
-Hooks never call one.
+<!-- vim:set expandtab shiftwidth=2 filetype=markdown foldlevel=3: -->
