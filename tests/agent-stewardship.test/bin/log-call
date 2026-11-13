@@ -1,0 +1,19 @@
+#!/bin/sh
+# vim:set expandtab shiftwidth=4 filetype=sh:
+# SPDX-License-Identifier: GPL-3.0-only
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/tests/agent-stewardship.test/bin/log-call
+#
+#
+
+# Logs a call to a stand-in: `log-call <name> [<arg>...]` appends the
+# name and each argument to $STUB/calls.log, each ended by a NUL, and the
+# call by \001, so a message with newlines survives intact.
+
+STUB=${STUB:?}
+
+printf '%s\0' "$@" >>"$STUB/calls.log"
+printf '\001' >>"$STUB/calls.log"

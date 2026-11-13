@@ -1,0 +1,400 @@
+// vim:set expandtab shiftwidth=4 filetype=typescript:
+// SPDX-License-Identifier: GPL-3.0-only
+
+//
+//
+// ~chewygumxx/agent-library.git
+// ::: :/tests/agent-stewardship.test/send-prompt.test.mts
+//
+//
+
+// send-prompt.sh: sending now, on a timer, on delivery, and outside herdr.
+
+import { beforeEach, describe, expect, it } from "bun:test";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import {
+    calls,
+    finish,
+    lockFile,
+    logOnly,
+    root,
+    run,
+    sandbox,
+    send,
+    sendsDir,
+    setStatus,
+    start,
+    touch,
+    until,
+    writes,
+} from "./harness.mts";
+
+sandbox();
+
+describe("send-prompt.sh, now", () => {
+    it("labels the text and sends it, then Enter, apart", async () => {
+        const { code } = await run(send, ["--from", "alice", "bob"], "hello\n");
+        expect(code).toBe(0);
+        expect(await writes()).toEqual([
+            ["send-text", "w1:p2", "[from alice] hello"],
+            ["send-keys", "w1:p2", "enter"],
+        ]);
+    });
+
+    it("pauses AGENT_STEWARDSHIP_SEND_PAUSE seconds between the text and Enter", async () => {
+        await logOnly("sleep");
+        const { code } = await run(send, ["--from", "alice", "bob"], "hi", {
+            AGENT_STEWARDSHIP_SEND_PAUSE: "7",
+        });
+        expect(code).toBe(0);
+        expect(
+            (await calls())
+                .filter(
+                    (call) =>
+                        call[0] !== "herdr" || call[2]?.startsWith("send-"),
+                )
+                .map((call) => call.slice(0, 3)),
+        ).toEqual([
+            ["herdr", "pane", "send-text"],
+            ["sleep", "7"],
+            ["herdr", "pane", "send-keys"],
+        ]);
+    });
+
+    it("sends quotes, newlines, $, backticks and a leading - verbatim", async () => {
+        const text =
+            'it\'s "quoted" $HOME `date` $(id) \\n\n  - second line\n--help';
+        await run(send, ["--from", "alice", "bob"], text);
+        const [first] = await writes();
+        expect(first).toEqual(["send-text", "w1:p2", `[from alice] ${text}`]);
+
+        await run(send, ["--from", "alice", "bob"], "-rf --force");
+        expect((await writes())[2]).toEqual([
+            "send-text",
+            "w1:p2",
+            "[from alice] -rf --force",
+        ]);
+    });
+
+    it("names the sender after the agent on HERDR_PANE_ID", async () => {
+        await writeFile(join(root, "name.w9:p9"), "carol");
+        const { code } = await run(send, ["bob"], "hi", {
+            HERDR_PANE_ID: "w9:p9",
+        });
+        expect(code).toBe(0);
+        expect((await writes())[0]?.[2]).toBe("[from carol] hi");
+    });
+
+    it("names the sender after a pane that has moved", async () => {
+        await writeFile(join(root, "moved.w0:old"), "w9:p9");
+        await writeFile(join(root, "name.w9:p9"), "carol");
+        const { code } = await run(send, ["bob"], "hi", {
+            HERDR_PANE_ID: "w0:old",
+        });
+        expect(code).toBe(0);
+        expect((await writes())[0]?.[2]).toBe("[from carol] hi");
+    });
+
+    it("refuses an agent blocked on a dialog, sending nothing", async () => {
+        await setStatus("blocked");
+        const { code, err } = await run(send, ["--from", "a", "bob"], "hi");
+        expect(code).toBe(3);
+        expect(err).toContain("blocked");
+        expect(await writes()).toEqual([]);
+    });
+
+    it("refuses an absent agent", async () => {
+        await touch("absent");
+        const { code } = await run(send, ["--from", "a", "bob"], "hi");
+        expect(code).toBe(4);
+        expect(await writes()).toEqual([]);
+    });
+
+    it("refuses an empty message", async () => {
+        const { code } = await run(send, ["--from", "a", "bob"], " \n");
+        expect(code).toBe(2);
+        expect(await calls()).toEqual([]);
+    });
+
+    it("reports a failed Enter after the text was written", async () => {
+        await touch("fail-keys");
+        const { code, err } = await run(send, ["--from", "a", "bob"], "hi");
+        expect(code).toBe(1);
+        expect(err).toContain("enter failed");
+    });
+
+    it("reads the status after taking the pane's lock", async () => {
+        await mkdir(join(root, "run", "agent-stewardship"));
+        const holder = Bun.spawn(
+            ["flock", lockFile(), "sh", "-c", "read -r _"],
+            { stdin: "pipe", stdout: "ignore", stderr: "ignore" },
+        );
+        await until(async () => {
+            const probe = Bun.spawn(["flock", "-n", lockFile(), "true"]);
+            return (await probe.exited) !== 0;
+        });
+        const waiting = start(send, ["--from", "a", "bob"], "hi");
+        await Bun.sleep(300);
+        expect(await writes()).toEqual([]);
+        await setStatus("blocked");
+        holder.stdin.write("\n");
+        holder.stdin.end();
+        const { code } = await finish(waiting);
+        await holder.exited;
+        expect(code).toBe(3);
+        expect(await writes()).toEqual([]);
+    });
+});
+
+describe("send-prompt.sh, scheduled", () => {
+    it("refuses a time without a date, as it would recur daily", async () => {
+        const { code, err } = await run(
+            send,
+            ["--from", "a", "--at", "02:31", "bob"],
+            "hi",
+        );
+        expect(code).toBe(2);
+        expect(err).toContain("date");
+        expect((await calls()).length).toBe(0);
+    });
+
+    it("refuses a time that is not in the future", async () => {
+        const { code, err } = await run(
+            send,
+            ["--from", "a", "--at", "2020-01-01 00:00", "bob"],
+            "hi",
+        );
+        expect(code).toBe(2);
+        expect(err).toContain("future");
+        expect((await calls()).length).toBe(0);
+    });
+
+    it("refuses --at with --in", async () => {
+        const { code } = await run(
+            send,
+            ["--from", "a", "--at", "2099-01-01", "--in", "2min", "bob"],
+            "hi",
+        );
+        expect(code).toBe(2);
+    });
+
+    it("sets a calendar timer, keeping the message out of argv", async () => {
+        const message = "secret-ish words";
+        const { code, out } = await run(
+            send,
+            ["--from", "alice", "--at", "2099-01-01 00:00", "bob"],
+            message,
+        );
+        expect(code).toBe(0);
+        const [call] = await calls();
+        expect(call?.[0]).toBe("systemd-run");
+        const unit = call?.find((arg) => arg.startsWith("--unit=")) ?? "";
+        expect(unit).toMatch(/^--unit=agent-stewardship-send-bob-\d+$/);
+        const id = unit.slice("--unit=agent-stewardship-send-".length);
+        expect(call).toEqual(
+            expect.arrayContaining([
+                "--user",
+                "--collect",
+                "--timer-property=AccuracySec=1s",
+                "--setenv=PATH",
+                "--setenv=XDG_RUNTIME_DIR",
+                "--setenv=XDG_STATE_HOME",
+                "--on-calendar=2099-01-01 00:00:00 UTC",
+            ]),
+        );
+        expect(call?.slice(-4)).toEqual(["--", send, "--deliver", id]);
+        expect(call?.join(" ")).not.toContain("secret");
+        expect(out).toContain(`agent-stewardship-send-${id}`);
+        expect(out).toContain("2099-01-01 00:00:00 UTC");
+
+        const file = join(sendsDir(), `${id}.msg`);
+        expect(await readFile(file, "utf8")).toBe(
+            `[from alice, scheduled] ${message}`,
+        );
+        expect((await stat(file)).mode & 0o777).toBe(0o600);
+    });
+
+    it("reads a time in the local zone and sets it in UTC", async () => {
+        const { code, out } = await run(
+            send,
+            ["--from", "a", "--at", "2099-01-01 00:00", "bob"],
+            "hi",
+            { TZ: "Australia/Sydney" },
+        );
+        expect(code).toBe(0);
+        const [call] = await calls();
+        expect(call).toContain("--on-calendar=2098-12-31 13:00:00 UTC");
+        expect(out).toContain("when: 2098-12-31 13:00:00 UTC");
+    });
+
+    it("takes an epoch for a date", async () => {
+        const { code } = await run(
+            send,
+            ["--from", "a", "--at", "@4070908800", "bob"],
+            "hi",
+        );
+        expect(code).toBe(0);
+        const [call] = await calls();
+        expect(call).toContain("--on-calendar=2099-01-01 00:00:00 UTC");
+    });
+
+    it("sets a relative timer", async () => {
+        const { code } = await run(
+            send,
+            ["--from", "a", "--in", "2min", "bob"],
+            "hi",
+        );
+        expect(code).toBe(0);
+        const [call] = await calls();
+        expect(call).toContain("--on-active=2min");
+        expect(call?.some((arg) => arg.startsWith("--on-calendar"))).toBe(
+            false,
+        );
+    });
+
+    it("leaves no message behind when the timer is refused", async () => {
+        await touch("fail-run");
+        const { code } = await run(
+            send,
+            ["--from", "a", "--in", "2min", "bob"],
+            "hi",
+        );
+        expect(code).not.toBe(0);
+        expect(await readdir(sendsDir())).toEqual([]);
+    });
+});
+
+describe("send-prompt.sh --deliver", () => {
+    const id = "bob-1";
+    const msg = () => join(sendsDir(), `${id}.msg`);
+    const tries = () => join(sendsDir(), `${id}.tries`);
+    const log = () => readFile(join(sendsDir(), `${id}.log`), "utf8");
+    const stamp = "\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ";
+
+    beforeEach(async () => {
+        await mkdir(sendsDir(), { recursive: true });
+        await writeFile(msg(), "[from alice, scheduled] hi\nthere");
+    });
+
+    it("delivers, logs it and removes the message", async () => {
+        const { code } = await run(send, ["--deliver", id]);
+        expect(code).toBe(0);
+        expect(await writes()).toEqual([
+            ["send-text", "w1:p2", "[from alice, scheduled] hi\nthere"],
+            ["send-keys", "w1:p2", "enter"],
+        ]);
+        expect(await log()).toMatch(new RegExp(`^${stamp} delivered\n$`));
+        expect(await readdir(sendsDir())).not.toContain(`${id}.msg`);
+    });
+
+    it("pauses AGENT_STEWARDSHIP_SEND_PAUSE seconds between text and Enter", async () => {
+        await logOnly("sleep");
+        const { code } = await run(send, ["--deliver", id], "", {
+            AGENT_STEWARDSHIP_SEND_PAUSE: "7",
+        });
+        expect(code).toBe(0);
+        expect(
+            (await calls())
+                .filter(
+                    (call) =>
+                        call[0] !== "herdr" || call[2]?.startsWith("send-"),
+                )
+                .map((call) => call.slice(0, 3)),
+        ).toEqual([
+            ["herdr", "pane", "send-text"],
+            ["sleep", "7"],
+            ["herdr", "pane", "send-keys"],
+        ]);
+    });
+
+    it("re-arms in five minutes when blocked, counting the tries", async () => {
+        await setStatus("blocked");
+        for (const count of [1, 2]) {
+            const { code } = await run(send, ["--deliver", id]);
+            expect(code).toBe(0);
+            expect(await readFile(tries(), "utf8")).toBe(`${count}\n`);
+        }
+        expect(await writes()).toEqual([]);
+        const armed = (await calls()).filter((c) => c[0] === "systemd-run");
+        expect(armed).toHaveLength(2);
+        expect(armed[1]).toEqual(
+            expect.arrayContaining([
+                "--user",
+                "--collect",
+                "--on-active=5min",
+                "--timer-property=AccuracySec=1s",
+            ]),
+        );
+        expect(armed[1]?.slice(-3)).toEqual([send, "--deliver", id]);
+        expect(armed[0]?.find((a) => a.startsWith("--unit="))).not.toBe(
+            armed[1]?.find((a) => a.startsWith("--unit=")),
+        );
+        expect(await log()).toMatch(
+            new RegExp(`^(${stamp} refused blocked, re-armed\n){2}$`),
+        );
+        expect(await readFile(msg(), "utf8")).toContain("hi");
+    });
+
+    it("re-arms when the agent is absent", async () => {
+        await touch("absent");
+        const { code } = await run(send, ["--deliver", id]);
+        expect(code).toBe(0);
+        expect(await log()).toMatch(/ refused absent, re-armed\n$/);
+    });
+
+    it("gives up at 12 tries", async () => {
+        await setStatus("blocked");
+        await writeFile(tries(), "12\n");
+        const { code } = await run(send, ["--deliver", id]);
+        expect(code).not.toBe(0);
+        expect(await log()).toMatch(new RegExp(`^${stamp} gave up\n$`));
+        expect(
+            (await calls()).filter((call) => call[0] === "systemd-run"),
+        ).toEqual([]);
+    });
+
+    it("re-arms at 11 tries, the last one", async () => {
+        await setStatus("blocked");
+        await writeFile(tries(), "11\n");
+        await run(send, ["--deliver", id]);
+        expect(await readFile(tries(), "utf8")).toBe("12\n");
+        expect(await log()).toContain("re-armed");
+    });
+
+    it("does not resend after a failed send-text, which may have written", async () => {
+        await touch("fail-text");
+        const { code } = await run(send, ["--deliver", id]);
+        expect(code).toBe(1);
+        expect(await log()).toMatch(
+            new RegExp(`^${stamp} partial: send-text failed, not resent\n$`),
+        );
+        expect(
+            (await calls()).filter((call) => call[0] === "systemd-run"),
+        ).toEqual([]);
+        expect((await writes()).map((call) => call[0])).toEqual(["send-text"]);
+    });
+
+    it("records a partial send, and does not re-arm it", async () => {
+        await touch("fail-keys");
+        const { code } = await run(send, ["--deliver", id]);
+        expect(code).not.toBe(0);
+        expect(await log()).toMatch(
+            new RegExp(`^${stamp} partial: text written, enter failed\n$`),
+        );
+        expect(
+            (await calls()).filter((call) => call[0] === "systemd-run"),
+        ).toEqual([]);
+        expect((await writes())[0]?.[0]).toBe("send-text");
+    });
+});
+
+describe("send-prompt.sh outside herdr", () => {
+    it("says its usage without --from, touching nothing", async () => {
+        const { code, err } = await run(send, ["bob"], "hi");
+        expect(code).toBe(2);
+        expect(err).toContain("usage");
+        expect(await calls()).toEqual([]);
+        expect(await readdir(root)).not.toContain("state");
+    });
+});

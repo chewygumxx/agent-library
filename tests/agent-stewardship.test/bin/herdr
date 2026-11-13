@@ -1,0 +1,52 @@
+#!/bin/sh
+# vim:set expandtab shiftwidth=4 filetype=sh:
+# SPDX-License-Identifier: GPL-3.0-only
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/tests/agent-stewardship.test/bin/herdr
+#
+#
+
+# Stands in for herdr, as the files in $STUB direct:
+#
+#   status          the agent_status of every agent
+#   name.<pane>     the name of the agent on <pane>, else <pane>
+#   pane.<pane>     the pane `agent get <pane>` reports, else w1:p2
+#   moved.<pane>    the pane <pane> has moved to: `pane get` follows it,
+#                   as the real herdr does, and `agent get` knows only
+#                   the new id
+#   absent          no agent anywhere
+#   fail-text       every `pane send-text` fails
+#   fail-instructions   every `pane send-text` but of "/compact " fails
+#   fail-keys       every `pane send-keys` fails
+
+STUB=${STUB:?}
+
+log-call herdr "$@"
+
+case "$1 $2" in
+"pane get")
+    pane=$(cat "$STUB/moved.$3" 2>/dev/null || printf %s "$3")
+    printf '{"result":{"pane":{"pane_id":"%s"}}}\n' "$pane"
+    ;;
+"agent get")
+    if [ -e "$STUB/absent" ] || [ -e "$STUB/moved.$3" ]; then
+        echo '{"error":{"code":"agent_not_found"}}'
+        exit 1
+    fi
+    name=$(cat "$STUB/name.$3" 2>/dev/null || printf %s "$3")
+    pane=$(cat "$STUB/pane.$3" 2>/dev/null || echo w1:p2)
+    status=$(cat "$STUB/status")
+    printf '{"result":{"agent":{"name":"%s","pane_id":"%s","agent_status":"%s"}}}\n' \
+        "$name" "$pane" "$status"
+    ;;
+"pane send-text")
+    [ -e "$STUB/fail-text" ] && exit 1
+    [ -e "$STUB/fail-instructions" ] && [ "$4" != "/compact " ] && exit 1
+    ;;
+"pane send-keys") [ -e "$STUB/fail-keys" ] && exit 1 ;;
+*) ;;
+esac
+exit 0

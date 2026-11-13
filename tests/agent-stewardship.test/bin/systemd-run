@@ -1,0 +1,19 @@
+#!/bin/sh
+# vim:set expandtab shiftwidth=4 filetype=sh:
+# SPDX-License-Identifier: GPL-3.0-only
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/tests/agent-stewardship.test/bin/systemd-run
+#
+#
+
+# Stands in for systemd-run, failing when $STUB/fail-run exists.
+
+STUB=${STUB:?}
+
+log-call systemd-run "$@"
+
+[ -e "$STUB/fail-run" ] && exit 1
+exit 0
