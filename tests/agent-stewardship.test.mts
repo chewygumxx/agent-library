@@ -103,9 +103,6 @@ beforeEach(async () => {
         XDG_STATE_HOME: join(root, "state"),
         STUB: root,
         TZ: "UTC",
-        // A tool on PATH may be a mise shim, which refuses this repository's
-        // config unless trusted; the user's trust lives under the real HOME.
-        MISE_TRUSTED_CONFIG_PATHS: join(import.meta.dir, ".."),
         // The pause before Enter, not waited out but for its own test.
         AGENT_STEWARDSHIP_SEND_PAUSE: "0",
     };
@@ -147,6 +144,11 @@ const start = (
     extra: Record<string, string> = {},
 ) =>
     Bun.spawn([script, ...args], {
+        // A tool on PATH may be a mise shim, which reads the config of every
+        // directory above its own and refuses one the user has not trusted:
+        // trust lives under the real HOME. A worktree may sit within a
+        // checkout, whose config no list of this one's paths would cover.
+        cwd: root,
         env: { ...env, ...extra },
         stdin: new Blob([stdin]),
         stdout: "pipe",
