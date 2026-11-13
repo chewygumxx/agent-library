@@ -1,0 +1,31 @@
+# vim:set expandtab shiftwidth=4 filetype=toml:
+# SPDX-License-Identifier: GPL-3.0-only
+#:schema https://mise.jdx.dev/schema/mise-task.json
+
+#
+#
+# ~chewygumxx/agent-library.git
+# ::: :/skills/fragmenting-tests/assets/tasks.toml
+#
+#
+
+#
+# Copied to tests/<subject>/tasks.toml, a task per test file of the
+# directory. `run` names the file; each `covers:` tag names a path the
+# file runs or reads, directly or through what that path sources or
+# calls. No `sources`, under which mise would skip a test: the tests
+# always run.
+#
+
+["test:<subject>"]
+description = "Test <subject>"
+depends     = [ "test:<subject>:*" ]
+
+["test:<subject>:<part>"]
+description = "Test <part>: <what it tests, in a line>"
+tags        = [
+    "test",
+    "covers:<path the file runs>",
+    "covers:<path that path sources or calls>",
+]
+run         = "bun test ./tests/<subject>/<part>.test.mts"

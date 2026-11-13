@@ -30,6 +30,15 @@ tags        = [
 ]
 run         = "bun test ./tests/configuring-mise-tasks.test.mts"
 
+["test:fragmenting-tests"]
+description = "Test the fragmenting-tests skill's bundled guard and task template"
+tags        = [
+    "test",
+    "covers:tests/test-tasks.test.mts",
+    "covers:skills/fragmenting-tests/assets",
+]
+run         = "bun test ./tests/fragmenting-tests.test.mts"
+
 ["test:lint-emdash"]
 description = "Test lint-emdash.sh in a throwaway git repository"
 tags        = [ "test", "covers:scripts/lint-emdash.sh" ]
