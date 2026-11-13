@@ -22,9 +22,9 @@ context, include such within the commit message body.
 
 - `skills/` contain the skills this repository provides, one directory each.
 - `tests/` holds one `<subject>.test.mts` per subject. One grown too long
-  to read whole becomes a directory, `<subject>.test/`, of a
-  `<part>.test.mts` for each part and the infrastructure they share:
-  Bun runs only the files whose own name holds `.test.`.
+  to read whole becomes a directory, `<subject>/`, of a `<part>.test.mts`
+  for each part and the infrastructure they share: Bun runs only the
+  files whose own name holds `.test.`.
 - `.agents/skills/` and `.claude/skills/*` contain the skills this repository
   sources by symlink. Synced by [`skills`](https://github.com/vercel-labs/skills),
   as specified by `skills-lock.json`.

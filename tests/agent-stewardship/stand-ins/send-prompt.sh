@@ -5,7 +5,7 @@
 #
 #
 # ~chewygumxx/agent-library.git
-# ::: :/tests/agent-stewardship.test/stand-ins/send-prompt.sh
+# ::: :/tests/agent-stewardship/stand-ins/send-prompt.sh
 #
 #
 

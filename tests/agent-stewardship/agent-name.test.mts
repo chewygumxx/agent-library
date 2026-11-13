@@ -4,7 +4,7 @@
 //
 //
 // ~chewygumxx/agent-library.git
-// ::: :/tests/agent-stewardship.test/agent-name.test.mts
+// ::: :/tests/agent-stewardship/agent-name.test.mts
 //
 //
 

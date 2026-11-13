@@ -4,7 +4,7 @@
 //
 //
 // ~chewygumxx/agent-library.git
-// ::: :/tests/agent-stewardship.test/send-prompt.test.mts
+// ::: :/tests/agent-stewardship/send-prompt.test.mts
 //
 //
 
